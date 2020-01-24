@@ -6,7 +6,7 @@ Set Up
 This repo contains a Class file for reading any form of PMT waveform.
 
 Requirements to use this code:
-	- Must have python3
+  - Must have python3
   - Must have pyroot
   
 I include here, as it may be useful to others a quick tutorial in how to set up these two things. However, I will only do so for Mac OS as I have only figured it out for such.
