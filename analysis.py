@@ -1,5 +1,7 @@
-from functions import parse_arguments, process_xml_file, get_date_time
-from PMT_Classes import PMT_Array
+from functions import parse_arguments, get_date_time
+from data_reader_functions import process_xml_file
+from PMT_Array import PMT_Array
+
 
 def main():
     args = parse_arguments()
