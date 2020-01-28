@@ -55,5 +55,85 @@ The main file to focus on in this repo is the PMT_Classes.py file. The other fil
 
 With python3, pyroot installed properly and a good IDE you should be able to familiarise yourself with all the functionality of this trivial OOP for PMTs. I have tried to write a function for everything and have made the naming almost too clear so there should be no problem.
   
+For those with access to the HEP cluster at UCL you can use pc204 or pc202 as both have python3 and root6 set up ready to use - as well as many other modules that this repo uses such as minidom.
+
+I would recommend familiarising oneself with test.py as this file give a crash course in how to use some features of the class structure.
+
+The main structure of this repo is as follows:
+
+PMT_Object.py
+-------------
+Class for each PMT that will hold settings and result histograms. To set up you need to give it a unique name.
+
+This has a set of default settings:
+
+        - charge_cut = 6  # pC
+        - charge_range = [0, 100]
+        - nbins = 100
+        - amp_range = [0, 100]
+        - mf_shape_range = [-1, 1]
+        - mf_amp_range = [0, 100]
+        - sweep_range = [0, 500]
+        - pulse_time_threshold = 100
+        - apulse_region = 500
+        - resistance = 50 # Ohms
+        - mf_shape_threshold = 0.9
+        - mf_amp_threshold = 25
+        - waveform_length = 8000
+
+The names of these settings are very important. use the get/set_setting("name"/"name", value) to access or change. 
+
+The default histograms that are created are:
+
+    - pulse_charge_hist
+    - pulse_amplitude_hist
+    - apulse_charge_hist
+    - pulse_mf_shape_hist
+    - pulse_mf_amplitude_hist
+    - pulse_mf_shape_mf_amplitude_hist
+    - pulse_mf_shape_p_amplitude_hist
+    - pulse_mf_amplitude_p_amplitude
+    - pulse_peak_time_hist
+    - apulse_times_hist
+    
+These names are also important. They all have the ranges and number of bins defined in the setting above. See the set_up_histograms function in PMT_Object.py for more details.
+
+These histograms can be access by member function or by get_histogram("name") function. To fill you  can do either as well.
+
+PMT_Waveform.py
+---------------
+Feed a list of strings, and a PMT_Object, and it will convert that list of strings into a PMT_Waveform object and you can fill the PMT_Object with the analysis from the PMT_Waveform.
+
+Requires you to pass it a PMT_Object.
+
+First it checks the charge of the pmt pulse which it finds automatically. At the moment it defines a fixed window for integration but in the future this window will very depending on the size of the pulse. It then checks the PMT_Object settings for a charge cut. By default, even after applying a setting file [see later in PMT_Array], the charge cut is the only trigger cut. If the charge of the pulse is bigger than the cut value the pmt waveform will trigger to True. This boolean can be used as a descriminator to fill the results of the analysis into the PMT_Object. This avoids null waveforms for example/ empty waveforms.
+
+The reusults it calculates by default are:
+
+            "pulse_charge"      : 0.0,
+            "pulse_amplitude"   : 0.0,
+            "apulse_charge"     : 0.0,
+            "mf_pulse_shape"    : 0.0,
+            "mf_pulse_amp"      : 0.0,
+            "pulse_peak_time"   : self.get_pmt_pulse_peak_position(),
+            "apulse_times"      : []
+            
+These names are again very important. Use get_results("name" )to access these results. I have showed the type of value above so you can be sure to use them correctly.
+
+PMT_Object.py has a function called fill_pmt_hists() which you call after each triggered waveform. See test.py as an example of this.
+
+PMT_Array.py
+------------
+A class to contain multiple PMT_Objects.
+
+Requires parsing a PMT_Object to the class. Depending on the structure you can access these objects by the number they are associated to or the position (if they are in a 2D array). 
+
+There are several functions in this class that make fill the PMT_Objects easier if you have lots of PMTs as well as accessing their results.
+
+If one is not happy with the default settings you can simply call the function apply_setting("config_file_name") which will read all the settings you want from the file. See example_cofig_file.txt to see the format. The format is quite specific but the example makes  it clear. 
   
- 
+As it stands this applies the same setting to all PMTs. This will become a problem when we want to apply different settings to each PMT, so for now you will have to be more specific for special cases.
+
+Extras
+------
+I have also included some example data reading functions but these I will not explain in detail.
