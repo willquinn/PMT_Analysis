@@ -13,6 +13,7 @@ from PMT_Object import PMT_Object
 from PMT_Waveform import PMT_Waveform
 from data_reader_functions import read_test_file
 
+
 def main():
     # Create an arbitrary experiment with a single PMT
     # The topology can then just be [1,1]
@@ -22,9 +23,15 @@ def main():
     # equal to the pmts in your grid
     pmt_array = PMT_Array(topology, "test")
 
+    # Set the cuts from a config file. This also sets up the histograms
+    pmt_array.apply_setting("example_config_file.txt")
+
     # Or you can create a PMT_Oject directly. The Array class is a simple object
     # to contain all the pmts and has a few functions to make things easier
     pmt_object = PMT_Object("PMT_1", "test")
+
+    # Set up the histograms using the default settings
+    pmt_object.set_up_histograms()
 
     # Now you need data. I have supplied a sample of waveforms in ./Data/run_214
     # Real data will be in various different formats
@@ -61,7 +68,7 @@ def main():
         ######################
         # Fill results. You don't need to input any info to tell what to fill where as all this info is
         # handled in the classes
-        # Only default hists have bee created. Thoroughly read the class to see how to change frpm defaults
+        # Only default hists have bee created. Thoroughly read the class to see how to change from defaults
         pmt_waveform.fill_pmt_hists()
         pmt_waveform_array_version.fill_pmt_hists()
 
