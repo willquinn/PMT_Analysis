@@ -22,6 +22,7 @@ def main():
     config_file_name = args.c
     sweep_bool = args.sweep
     recreate_bool = args.r
+    bismuth_bool = args.f
     ##############################
 
     # Do some string manipulation to get the date and time from the file name
@@ -41,9 +42,8 @@ def main():
     ##########################################################
     temp = input_data_file_name.split("/")
     temp1 = temp[-1].split(".")
-    output_file_name = date + "_" +temp1[0] + "_output.root"
+    output_file_name = date + "_" + temp1[0] + "_output.root"
     ##########################################################
-
 
     if recreate_bool == "False":
         fit_bismuth_function_from_file(output_file_name)
@@ -60,8 +60,8 @@ def main():
         if config_file_name is not None:
             pmt_array.apply_setting(config_file_name)
 
-        if sweep_bool:
-            pmt_array.set_sweep_bool(sweep_bool)
+        if sweep_bool == "True":
+            pmt_array.set_sweep_bool(True)
             pmt_array.set_pmt_templates("/Users/willquinn/Documents/PhD/PMT_Permeation_Project/data/21.06.19_A1400_B1400_t1130_templates.root", "Template_Waveform_Channel0_A1400_B1400_t1130")
 
         try:
@@ -73,9 +73,11 @@ def main():
         except:
             print(">>> Output file doesn't exist, creating {}".format(output_file_name))
 
+        # To clean up the code I put the xml parsing code into a separate function
+        # Pass this function your pmt_array and it will fill the data directly into it
         process_xml_file(input_data_file_name, pmt_array)
 
-        # This is another way of processign the  file
+        # This is another way of processing the file but is slower
         '''waveform_list = process_xml_file_new(input_data_file_name)
         # Then loop over this list
         event_counter = 0
@@ -103,7 +105,9 @@ def main():
             del pmt_waveform
             event_counter += 1'''
 
-        pmt_array.fit_bismuth_function()
+        # This is not OOP, it is very specific to the PME Permeation project
+        if bismuth_bool == "True" or bismuth_bool is None:
+            pmt_array.fit_bismuth_function()
 
         # Save the results to a file
         pmt_array.save_to_file(output_file_name)

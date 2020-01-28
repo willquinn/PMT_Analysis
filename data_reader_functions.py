@@ -2,7 +2,6 @@ from PMT_Array import PMT_Array
 from PMT_Waveform import PMT_Waveform
 from xml.dom import minidom
 import time as TIME
-import ROOT
 
 
 def process_xml_file(input_data_file_name: str, pmt_array: PMT_Array):
@@ -16,22 +15,20 @@ def process_xml_file(input_data_file_name: str, pmt_array: PMT_Array):
     print(">>> File is good. Parse time: %.3f s" % parse_time)
     print(">>> Number of Events: {}".format(len(events)))
 
-    save_waveform = True
-
     event_counter = 0
     percentage_counter = 1
     print(">>> Looping over events")
     temp_start = TIME.time()
     for event_index, event in enumerate(events):
 
-        if event_counter == int(len(events)/10):
+        if event_counter == int(len(events)/20):
             event_counter = 0
             intermediate = TIME.time()
             time_length = intermediate - temp_start
             print(">>>\n>>>  %.3f s.\n" % (intermediate - temp_start))
             temp_start = intermediate
-            print("Processed {}% of data...".format(percentage_counter * 10))
-            estimate = time_length * (10 - percentage_counter)
+            print("Processed {}% of data...".format(percentage_counter * 5))
+            estimate = time_length * (20 - percentage_counter)
             print(">>> Estimated time till termination %.3f seconds\n\n" % estimate)
             percentage_counter += 1
 
@@ -40,19 +37,19 @@ def process_xml_file(input_data_file_name: str, pmt_array: PMT_Array):
             # Channel refers to the pmt number
             channel_id = int(trace.attributes['channel'].value)
 
+            # Important Code:
+            # This is where you pass the data to the OOP code which does all the analysis for you
+            # Ideally this would be in the main analysis.py file
+            ##########################################################################################################
             pmt_waveform = PMT_Waveform(trace.firstChild.data.split(" "), pmt_array.get_pmt_object_number(channel_id))
-
-            if save_waveform:
-                save_waveform = False
-                waveform_root_file = ROOT.TFile("waveform.root", "CREATE")
-                pmt_waveform.save_pmt_waveform_histogram(waveform_root_file)
-            # check waveform and fill histograms
+            # check waveform to see if you want to fill histograms
+            # The pulse trigger logic is in PMT_Waveform.py
             if pmt_waveform.get_pulse_trigger():
                 pmt_waveform.fill_pmt_hists()
-
             else:
                 pass
             del pmt_waveform
+            ##########################################################################################################
 
         event_counter += 1
 

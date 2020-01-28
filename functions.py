@@ -1,6 +1,3 @@
-import numpy as np
-
-
 def parse_arguments():
     import argparse
     parser = argparse.ArgumentParser(description="Input file names")
@@ -8,11 +5,13 @@ def parse_arguments():
     parser.add_argument('-c', required=False, type=str, help='Config file')
     parser.add_argument('-sweep', required=False, type=str, help='Define whether you want to sweep. By default this is set to false')
     parser.add_argument('-r', required=False, type=str, help='Define whether you want ot recreate the file')
+    parser.add_argument('-f', required=False, type=str, help='Define if you want the Bismuth spectrum to be created')
     args = parser.parse_args()
     return args
 
 
 def get_normalisation_factor(vector: list):
+    import numpy as np
     norm = 0.0
     for i in range(len(vector)):
         norm += vector[i] * vector[i]
@@ -91,7 +90,7 @@ def fit_bismuth_function_from_file(root_file_name: str):
             if spectra_list[i_pmt] is not 0x0:
                 if spectra_list[i_pmt].GetEntries() == 0:
                     continue
-                canvas_name = "GAO612_000000_0000"
+                canvas_name = "GAO612_000000_0000.pdf"
                 canvas = ROOT.TCanvas(canvas_name, canvas_name)
 
                 fit = ROOT.TF1("fit",

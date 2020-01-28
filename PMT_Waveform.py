@@ -49,7 +49,7 @@ class PMT_Waveform:
             "apulse_charge"     : 0.0,
             "mf_pulse_shape"    : 0.0,
             "mf_pulse_amp"      : 0.0,
-            "pulse_peak_time"   : np.argmin(self.pmt_waveform),
+            "pulse_peak_time"   : self.get_pmt_pulse_peak_position(),
             "apulse_times"      : []
         }
 
@@ -233,10 +233,11 @@ class PMT_Waveform:
         matched_filter_shape = np.array(matched_filter_shape_list)
         matched_filter_amplitude = np.array(matched_filter_amplitude_list)
 
+        # TODO: check if both thresholds have been breached
         shape_peaks, _ = find_peaks(matched_filter_shape, height=self.get_pmt_oject().get_setting("mf_shape_threshold"), distance=int(sweep_window_length / 2))
         amplitude_peaks, _ = find_peaks(matched_filter_amplitude, height=self.get_pmt_oject().get_setting("mf_amp_threshold"), distance=int(sweep_window_length / 2))
-
-        self.set_results_dict("pulse_times", shape_peaks)
+        if len(shape_peaks) > 0:
+            self.set_results_dict("apulse_times", shape_peaks)
 
         '''fig, ax1 = plt.subplots()
 
