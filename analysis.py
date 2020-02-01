@@ -4,6 +4,7 @@ By default it does not do any matched filtering analysis unless you tell it to d
 
 Run this file at the terminal by:
     - python3 analysis.py -i $INPUT_DATA_FILE_PATH$ [-c $INPUT_CONFIG_FILE$] [-sweep True/False]
+                                                [-f True/False] [-r True/False]
 where [] arguments are optional, the defaults will be used.
 The default settings can be changed in PMT_Object.py in the _inti_() function
 """
@@ -45,9 +46,9 @@ def main():
     output_file_name = date + "_" + temp1[0] + "_output.root"
     ##########################################################
 
-    if recreate_bool == "False":
+    if recreate_bool == "False" or recreate_bool is None:
         fit_bismuth_function_from_file(output_file_name)
-    elif recreate_bool == "True" or recreate_bool is None:
+    elif recreate_bool == "True":
 
         # Create the object to store all the pmt information
         topology = [2, 1]
@@ -106,7 +107,7 @@ def main():
             event_counter += 1'''
 
         # This is not OOP, it is very specific to the PME Permeation project
-        if bismuth_bool == "True" or bismuth_bool is None:
+        if bismuth_bool == "True":
             pmt_array.fit_bismuth_function()
 
         # Save the results to a file

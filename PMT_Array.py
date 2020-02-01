@@ -149,7 +149,7 @@ class PMT_Array:
                     ROOT.gStyle.SetStatX(0.9)
                     ROOT.gStyle.SetStatW(0.8)
                     ROOT.gStyle.SetStatH(0.1)
-                    canvas.SaveAs(canvas_name, "pdf")
+                    canvas.SaveAs(canvas_name+".pdf", "pdf")
 
             elif "GAO612" in self.get_pmt_object_number(i_pmt).get_pmt_id():
                 if self.get_pmt_object_number(i_pmt).get_pmt_pulse_charge_hist().GetEntries() == 0:
@@ -197,4 +197,4 @@ class PMT_Array:
                     ROOT.gStyle.SetStatX(0.9)
                     ROOT.gStyle.SetStatW(0.8)
                     ROOT.gStyle.SetStatH(0.1)
-                    canvas.SaveAs(canvas_name, "pdf")
+                    canvas.SaveAs(canvas_name+".pdf", "pdf")

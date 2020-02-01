@@ -339,7 +339,7 @@ class PMT_Object:
 
     def fill_pmt_apulse_times_hist(self, value: list):
         for i_value in range(len(value)):
-            self.get_histogram("apulse_time_hists").Fill(value[i_value] - self.get_setting("sweep_range")[0])
+            self.get_histogram("apulse_time_hists").Fill(value[i_value])
 
     def fill_pmt_hists(self, results: dict):
 
