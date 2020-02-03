@@ -1,77 +1,51 @@
-from PMT_Classes import PMT_Object, PMT_Waveform, PMT_Array
+from data_reader_functions import process_crd_file, read_filenames
+from functions import sncd_parse_arguments, get_run_number, get_data_path
+from PMT_Array import PMT_Array
+import time as TIME
 import ROOT
-import numpy as np
-
 
 def main():
-    #create_template_histogram_temp()
-    run_number = "214"
-    data_file_name = "/Users/willquinn/Documents/PhD/SuperNEMO/SNEMO_ComData_Analysis/GV_XW_ComData/Data/run_" + run_number + "/run_" + run_number
-    template_file_name = "/Users/willquinn/Documents/PhD/SuperNEMO/SNEMO_ComData_Analysis/template.root"
-    topology = [20, 20]
+    args = sncd_parse_arguments()
+    data_file_names = args.i
+    config_file_name = args.c
+    sweep_bool = args.sweep
+    template_file_names = args.t
+    output_file_name = args.o
+
+    run_number = get_run_number(data_file_names)
+
+    topology = [20, 13]
+
+    template_list = read_filenames(template_file_names)
+    list_of_data_file_names = read_filenames(data_file_names)
 
     pmt_array = PMT_Array(topology, run_number)
-    pmt_array.set_pmt_templates(template_file_name)
+    if config_file_name is not None:
+        pmt_array.apply_setting(config_file_name)
+    if template_file_names is not None:
+        pmt_array.set_pmt_templates(template_list, "template")
+    if sweep_bool == "True":
+        pmt_array.set_sweep_bool(True)
 
-    Read_Data(data_file_name, topology, pmt_array)
+    print(">>> Looping of files...")
 
-
-def Read_Data(pmt_data_filename: str, topology: list, pmt_array: PMT_Array):
-
-    try:
-        pmt_data_file = open(pmt_data_filename, 'r')
-    except FileNotFoundError as fnf_error:
-        print(fnf_error)
-        raise Exception("Error opening data file. Skip to the next file...")
-
-    new_waveform_bool = False
-    line_number_int = 0
-    waveform_number_int = 0
-
-    for pmt_data_index, pmt_data_line in enumerate(pmt_data_file.readlines()[10:]):
-        pmt_data_line_tokens = pmt_data_line.split(" ")
-
-        if pmt_data_line_tokens[0] == "=" and pmt_data_line_tokens[1] == "HIT":
-            new_waveform_bool = True
-            line_number_int = 0
-        else:
-            pass
-
-        if new_waveform_bool and line_number_int == 1:
-            pmt_slot_number = int(pmt_data_line_tokens[1])
-            pmt_channel_number = int(pmt_data_line_tokens[3])
-            pmt_number = int(pmt_slot_number*topology[0] + pmt_channel_number)
-            event_id_LTO = int(pmt_data_line_tokens[5])
-            event_id_HT = int(pmt_data_line_tokens[7])
-            pmt_waveform_peak_cell = int(pmt_data_line_tokens[27])
-            pmt_waveform_charge = float(pmt_data_line_tokens[29])
-            pmt_waveform_rise_time = float(pmt_data_line_tokens[39])
-            if int(event_id_HT) != 0:
-                pass
-            elif int(event_id_LTO) != 0:
-                pass
-            else:
-                pass
-
-        elif new_waveform_bool and line_number_int == 2:
-            if event_id_HT != 0:
-                pmt_adc_values = []
-                for i_adc in range(len(pmt_data_line_tokens)):
-                    pmt_adc_values.append(pmt_data_line_tokens[i_adc])
-
-                pmt_waveform = PMT_Waveform(pmt_adc_values, pmt_array.get_pmt_object_position([pmt_slot_number, pmt_channel_number]))
-                pmt_waveform.fill_pmt_hists()
-                pmt_waveform.pmt_pulse_sweep(0, 500)
-
-                del pmt_waveform
-
-            new_waveform_bool = False
-
-        line_number_int += 1
+    data_path = get_data_path(data_file_names)
 
 
+    temp_start = TIME.time()
+    for index, data_file_name in enumerate(list_of_data_file_names):
+        process_crd_file(data_path + data_file_name, pmt_array)
 
-    pmt_data_file.close()
+        intermediate = TIME.time()
+        time_length = intermediate - temp_start
+        print(">>>\n>>>  %.3f s.\n" % (intermediate - temp_start))
+        temp_start = intermediate
+        print("Processed {} of the {} data files...".format(index + 1, len(list_of_data_file_names)))
+        estimate = time_length * (len(list_of_data_file_names) - index - 1)
+        print(">>> Estimated time till termination %.3f seconds\n\n" % estimate)
+
+
+    pmt_array.save_to_file(output_file_name)
 
 
 def create_template_histogram_temp():

@@ -6,6 +6,20 @@ def parse_arguments():
     parser.add_argument('-sweep', required=False, type=str, help='Define whether you want to sweep. By default this is set to false')
     parser.add_argument('-r', required=False, type=str, help='Define whether you want ot recreate the file')
     parser.add_argument('-f', required=False, type=str, help='Define if you want the Bismuth spectrum to be created')
+    parser.add_argument('-t', required=False, type=list, help='Define the topology of the PMT Array')
+    args = parser.parse_args()
+    return args
+
+
+def sncd_parse_arguments():
+    import argparse
+    parser = argparse.ArgumentParser(description="Input file names")
+    parser.add_argument('-i', required=True, type=str, help='Input data file path')
+    parser.add_argument('-c', required=False, type=str, help='Config file')
+    parser.add_argument('-sweep', required=False, type=str, help='Define whether you want to sweep. By default this is set to false')
+    parser.add_argument('-topology', required=False, type=list, help='Define the topology of the PMT Array')
+    parser.add_argument('-t', required=False, type=str, help='Path for the templates')
+    parser.add_argument('-o', required=True, type=str, help='Output file name')
     args = parser.parse_args()
     return args
 
@@ -25,6 +39,16 @@ def get_date_time(input_data_file_name: str):
     temp3 = temp2[2].split("t")
     time = temp3[1]
     return date, time
+
+
+def get_run_number(input_data_path: str):
+    i = input_data_path.split("/")
+    ii = i[-1]
+    iii = ii.split("_")
+    iv = iii[2]
+    v = iv.split(".")
+    vi = v[0]
+    return str(vi.strip())
 
 
 def fit_bismuth_function_from_file(root_file_name: str):
@@ -132,3 +156,7 @@ def fit_bismuth_function_from_file(root_file_name: str):
                 ROOT.gStyle.SetStatW(0.8)
                 ROOT.gStyle.SetStatH(0.1)
                 canvas.SaveAs(canvas_name, "pdf")
+
+
+def get_data_path(input_data_file: str):
+    return input_data_file.split('filenames')[0]

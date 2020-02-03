@@ -7,7 +7,6 @@
 
 import numpy as np
 from scipy.signal import find_peaks
-# import matplotlib as plt
 from PMT_Object import PMT_Object
 import ROOT
 
@@ -50,7 +49,7 @@ class PMT_Waveform:
             "mf_pulse_shape"    : 0.0,
             "mf_pulse_amp"      : 0.0,
             "pulse_peak_time"   : self.get_pmt_pulse_peak_position(),
-            "apulse_times"      : []
+            "pulse_times"       : []
         }
 
         if self.get_pmt_pulse_peak_position() < self.get_pmt_oject().get_pulse_time_threshold():
@@ -67,7 +66,7 @@ class PMT_Waveform:
             self.set_pmt_pulse_end(self.get_pmt_pulse_peak_position() + 30)
 
             self.set_pmt_pulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_pulse_start():self.get_pmt_pulse_end()] - self.get_pmt_baseline()))/self.get_pmt_oject().get_resistance())
-            if self.get_pmt_pulse_charge() < 6:
+            if self.get_pmt_pulse_charge() < self.get_pmt_oject().get_setting("charge_cut"):
                 return
             else:
                 self.set_pmt_pulse_trigger(True)
@@ -75,7 +74,7 @@ class PMT_Waveform:
                 self.set_pmt_apulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_oject().get_apulse_region():] - self.get_pmt_baseline()))/self.get_pmt_oject().get_resistance())
 
                 self.set_pmt_waveform_reduced()
-                self.set_pmt_pulse_peak_amplitude(np.amin(self.get_pmt_waveform_reduced()))
+                self.set_pmt_pulse_peak_amplitude(-1 * np.amin(self.get_pmt_waveform_reduced()))
 
                 self.results_dict["pulse_charge"] = self.get_pmt_pulse_charge()
                 self.results_dict["pulse_amplitude"] = self.get_pmt_pulse_peak_amplitude()
@@ -190,20 +189,15 @@ class PMT_Waveform:
         # plt.title("Waveform {}".format(self.get_pmt_trace_id()))
         # plt.show(block=True)
 
-        numb_weird = 0
-
         matched_filter_shape_list = []
         matched_filter_amplitude_list = []
         for i_sweep in range(sweep_start, sweep_end - sweep_window_length):
             pmt_waveform_section = self.get_pmt_waveform_reduced()[
                                    i_sweep : i_sweep + sweep_window_length]
-            #print(sweep_start + i_sweep, " ", sweep_end - sweep_window_length)
 
             if pmt_waveform_section.size == self.pmt_object.get_template_pmt_pulse().size:
                 pass
             else:
-                numb_weird += 1
-                #print(numb_weird)
                 print("Section size {} template size {}".format(pmt_waveform_section.size,
                                                                 self.pmt_object.get_template_pmt_pulse().size))
                 continue
@@ -237,7 +231,7 @@ class PMT_Waveform:
         shape_peaks, _ = find_peaks(matched_filter_shape, height=self.get_pmt_oject().get_setting("mf_shape_threshold"), distance=int(sweep_window_length / 2))
         amplitude_peaks, _ = find_peaks(matched_filter_amplitude, height=self.get_pmt_oject().get_setting("mf_amp_threshold"), distance=int(sweep_window_length / 2))
         if len(shape_peaks) > 0:
-            self.set_results_dict("apulse_times", shape_peaks)
+            self.set_results_dict("pulse_times", shape_peaks)
 
         '''fig, ax1 = plt.subplots()
 

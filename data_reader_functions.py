@@ -90,6 +90,77 @@ def read_test_file():
     return data_list
 
 
+def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
+
+    try:
+        pmt_data_file = open(input_data_file_name, 'r')
+    except FileNotFoundError as fnf_error:
+        print(fnf_error)
+        raise Exception("Error opening data file. Skip to the next file...")
+
+    new_waveform_bool = False
+    line_number_int = 0
+    waveform_number_int = 0
+
+    for pmt_data_index, pmt_data_line in enumerate(pmt_data_file.readlines()[10:]):
+        pmt_data_line_tokens = pmt_data_line.split(" ")
+
+        if pmt_data_line_tokens[0] == "=" and pmt_data_line_tokens[1] == "HIT":
+            new_waveform_bool = True
+            line_number_int = 0
+        else:
+            pass
+
+        if new_waveform_bool and line_number_int == 1:
+            pmt_slot_number = int(pmt_data_line_tokens[1])
+            pmt_channel_number = int(pmt_data_line_tokens[3])
+
+            pmt_number = int(pmt_slot_number*pmt_array.get_pmt_topology()[1] + pmt_channel_number)
+            '''if pmt_slot_number == 0:
+                print(pmt_slot_number, pmt_channel_number)
+                print(pmt_number)'''
+            event_id_LTO = int(pmt_data_line_tokens[5])
+            event_id_HT = int(pmt_data_line_tokens[7])
+            pmt_waveform_peak_cell = int(pmt_data_line_tokens[27])
+            pmt_waveform_charge = float(pmt_data_line_tokens[29])
+            pmt_waveform_rise_time = float(pmt_data_line_tokens[39])
+            if int(event_id_HT) != 0:
+                pass
+            elif int(event_id_LTO) != 0:
+                pass
+            else:
+                pass
+
+        elif new_waveform_bool and line_number_int == 2:
+            if event_id_HT != 0:
+
+                pmt_adc_values = []
+                for i_adc in range(len(pmt_data_line_tokens)):
+                    pmt_adc_values.append(pmt_data_line_tokens[i_adc])
+
+                pmt_waveform = PMT_Waveform(pmt_adc_values, pmt_array.get_pmt_object_number(pmt_number))
+                if pmt_waveform.get_pulse_trigger():
+                    pmt_waveform.pmt_pulse_sweep()
+                    pmt_waveform.fill_pmt_hists()
+
+                del pmt_waveform
+
+            new_waveform_bool = False
+
+        line_number_int += 1
+
+    pmt_data_file.close()
 
 
+def read_filenames(input_file_name: str):
+    filenames_list = []
+    try:
+        file = open(input_file_name, 'r')
+    except FileNotFoundError as fnf_error:
+        print(fnf_error)
+        raise Exception("Error opening data file. Skip to the next file...")
+    for index, line in enumerate(file.readlines()):
+        if line is not "" or line is not None:
+            filenames_list.append(line.split()[0])
+    return filenames_list
 

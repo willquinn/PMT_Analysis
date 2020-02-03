@@ -25,7 +25,7 @@ def read_config_file(config_file_name: str):
                 for i in range(len(value)):
                     value_.append(int(value[i].strip()))
 
-            temp_list = [tokens[1].strip(), value_]
+            temp_list = [description, value_]
             output_list.append(temp_list)
 
     return output_list
@@ -40,7 +40,7 @@ class PMT_Array:
 
         for i in range(topology[0]):
             for j in range(topology[1]):
-                pmt_number = i * topology[0] + j
+                pmt_number = i * topology[1] + j
                 pmt_object = PMT_Object(str(pmt_number), data_id)
                 self.append_pmt_object_array(pmt_object)
                 del pmt_object
@@ -49,10 +49,11 @@ class PMT_Array:
         output_root_file = ROOT.TFile(output_root_filename, "RECREATE")
 
         for i_pmt in range(self.get_pmt_total_number()):
-            output_root_file.cd()
-            output_root_file.mkdir(self.get_pmt_object_number(i_pmt).get_pmt_id())
-            directory = output_root_file.GetDirectory(self.get_pmt_object_number(i_pmt).get_pmt_id())
-            self.get_pmt_object_number(i_pmt).save_histograms(directory)
+            if self.get_pmt_object_number(i_pmt).get_event_number() > 0:
+                output_root_file.cd()
+                output_root_file.mkdir(self.get_pmt_object_number(i_pmt).get_pmt_id())
+                directory = output_root_file.GetDirectory(self.get_pmt_object_number(i_pmt).get_pmt_id())
+                self.get_pmt_object_number(i_pmt).save_histograms(directory)
 
     def get_pmt_topology(self):
         return self.pmt_topology
@@ -77,9 +78,9 @@ class PMT_Array:
     def get_pmt_object_number(self, pmt_number: int):
         return self.get_pmt_oject_array()[pmt_number]
 
-    def set_pmt_templates(self, template_root_file_name: str, template_histogram_name: str):
+    def set_pmt_templates(self, template_root_file_name_list: list, template_histogram_name: str):
         for i_pmt in range(self.get_pmt_total_number()):
-            self.get_pmt_object_number(i_pmt).create_pmt_pulse_template(template_root_file_name, template_histogram_name)
+            self.get_pmt_object_number(i_pmt).create_pmt_pulse_template(template_root_file_name_list[i_pmt], template_histogram_name)
 
     def apply_setting(self, config_file_name: str):
         if config_file_name is not None:

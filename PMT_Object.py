@@ -63,7 +63,7 @@ class PMT_Object:
                                      "pulse_mf_shape_p_amplitude_hist",
                                      "pulse_mf_amplitude_p_amplitude",
                                      "pulse_peak_time_hist"
-                                     "apulse_times_hist"
+                                     "pulse_times_hist"
                                      ]
 
 
@@ -130,8 +130,8 @@ class PMT_Object:
                                              0,
                                              self.get_setting("waveform_length"))
 
-        pmt_apulse_times_hist = ROOT.TH1I(self.get_pmt_id() + "_apulse_times",
-                                      self.get_pmt_id() + "_apulse_times",
+        pmt_pulse_times_hist = ROOT.TH1I(self.get_pmt_id() + "_pulse_times",
+                                      self.get_pmt_id() + "_pulse_times",
                                       self.get_setting("waveform_length"),
                                       0,
                                       self.get_setting("waveform_length"))
@@ -146,7 +146,7 @@ class PMT_Object:
             "pulse_mf_shape_p_amplitude_hist": pmt_pulse_mf_shape_p_amplitude_hist,
             "pulse_mf_amplitude_p_amplitude_hist": pmt_pulse_mf_amplitude_p_amplitude_hist,
             "pulse_peak_time_hist": pmt_pulse_peak_time_hist,
-            "apulse_time_hists": pmt_apulse_times_hist
+            "pulse_time_hists": pmt_pulse_times_hist
         }
 
     def get_setting_dict(self):
@@ -284,6 +284,7 @@ class PMT_Object:
         return self.get_histogram("pulse_charge_hist")
 
     def fill_pmt_pulse_charge_hist(self, value: float):
+        #print(value)
         self.get_histogram("pulse_charge_hist").Fill(value)
 
     def get_pmt_pulse_amplitude_hist(self):
@@ -334,23 +335,23 @@ class PMT_Object:
     def fill_pmt_pulse_peak_time_hist(self, value: int):
         self.get_histogram("pulse_peak_time_hist").Fill(value)
 
-    def get_pmt_apulse_times_hist(self):
-        return self.get_histogram("pulse_peak_times_hist")
+    def get_pmt_pulse_times_hist(self):
+        return self.get_histogram("apulse_time_hists")
 
-    def fill_pmt_apulse_times_hist(self, value: list):
+    def fill_pmt_pulse_times_hist(self, value: list):
         for i_value in range(len(value)):
-            self.get_histogram("apulse_time_hists").Fill(value[i_value])
+            self.get_histogram("pulse_time_hists").Fill(value[i_value])
 
     def fill_pmt_hists(self, results: dict):
 
-        #print("after ", results)
+        #print(results)
         pulse_charge: float = results["pulse_charge"]
         pulse_amplitude: float = results["pulse_amplitude"]
         apulse_charge: float = results["apulse_charge"]
         mf_amplitude: float = results["mf_pulse_amp"]
         mf_shape: float = results["mf_pulse_shape"]
         pulse_peak_time: int = results["pulse_peak_time"]
-        apulse_times: list = results["apulse_times"]
+        pulse_times: list = results["pulse_times"]
 
         self.fill_pmt_pulse_charge_hist(pulse_charge)
         self.fill_pmt_pulse_amplitude_hist(pulse_amplitude)
@@ -361,7 +362,9 @@ class PMT_Object:
         self.fill_pmt_pulse_mf_shape_p_amplitude_hist(pulse_amplitude, mf_shape)
         self.fill_pmt_pulse_mf_amplitude_p_amplitude_hist(pulse_amplitude, mf_amplitude)
         self.fill_pmt_pulse_peak_time_hist(pulse_peak_time)
-        self.fill_pmt_apulse_times_hist(apulse_times)
+        self.fill_pmt_pulse_times_hist(pulse_times)
+
+        self.set_number_of_events(self.get_event_number() + 1)
 
     def save_to_file(self, root_file_name: str):
         root_file = ROOT.TFile(root_file_name, "RECREATE")
