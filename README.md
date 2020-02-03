@@ -137,3 +137,21 @@ As it stands this applies the same setting to all PMTs. This will become a probl
 Extras
 ------
 I have also included some example data reading functions but these I will not explain in detail.
+
+Cluster Running
+---------------
+For those running on the UCL HEP computer cluster, a combination of numpy, scipy, ROOT and other modules may not be properly set up. I recommend pc202 or pc204 as they seem to work. However, the only requirement you really need is that you pc has ROOT for python3. So the first test is to do the following:
+
+    $ python3
+    >>> import ROOT
+    
+If this works with no error then all is good. If not find a PC that this works on. Type the following in the terminal:
+
+    $ virtualenv --python=python3 --system-site-packages myenv
+    $ source myenv/bin/activate
+    $ pip install --upgrade pip
+    $ pip3 install —-upgrade numpy scipy
+    
+You are now in a python3 virtual environment. All the code should now work and you can now download any modules that you may want or need. To deactivate the environment type:
+
+    $ deactivate
