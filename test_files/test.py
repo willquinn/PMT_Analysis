@@ -8,10 +8,10 @@ Without uncommenting this file reads sample data and produces two files:
 William Quinn 2020
 """
 
-from PMT_Array import PMT_Array
-from PMT_Object import PMT_Object
-from PMT_Waveform import PMT_Waveform
-from data_reader_functions import read_test_file
+from scr.PMT_Array import PMT_Array
+from scr.PMT_Object import PMT_Object
+from scr.PMT_Waveform import PMT_Waveform
+from scr.data_reader_functions import read_test_file
 
 
 def main():

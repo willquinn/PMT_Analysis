@@ -1,5 +1,5 @@
-from PMT_Array import PMT_Array
-from PMT_Waveform import PMT_Waveform
+from scr.PMT_Array import PMT_Array
+from scr.PMT_Waveform import PMT_Waveform
 from xml.dom import minidom
 import time as TIME
 import ROOT

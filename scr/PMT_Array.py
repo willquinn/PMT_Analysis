@@ -1,5 +1,5 @@
 import ROOT
-from PMT_Object import PMT_Object
+from scr.PMT_Object import PMT_Object
 
 
 def read_config_file(config_file_name: str):

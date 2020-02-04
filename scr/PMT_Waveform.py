@@ -7,7 +7,7 @@
 
 import numpy as np
 from scipy.signal import find_peaks
-from PMT_Object import PMT_Object
+from scr.PMT_Object import PMT_Object
 import ROOT
 
 
