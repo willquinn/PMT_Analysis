@@ -1,0 +1,8 @@
+*.log
+*.root
+.idea/
+*__
+*.pdf
+templates
+config_files
+scripts
