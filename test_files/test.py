@@ -11,7 +11,21 @@ William Quinn 2020
 from scr.PMT_Array import PMT_Array
 from scr.PMT_Object import PMT_Object
 from scr.PMT_Waveform import PMT_Waveform
-from scr.data_reader_functions import read_test_file
+
+
+def read_test_file():
+    try:
+        pmt_data_file = open("./test_data.dat", 'r')
+    except FileNotFoundError as fnf_error:
+        print(fnf_error)
+        raise Exception("Error opening data file.")
+    data_list = []
+    for line_index, line in enumerate(pmt_data_file.readlines()):
+        waveform = []
+        for token_index, token in enumerate(line.split()):
+            waveform.append(token.strip())
+        data_list.append(waveform)
+    return data_list
 
 
 def main():
