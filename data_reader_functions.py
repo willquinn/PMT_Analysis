@@ -146,6 +146,7 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
                     pmt_waveform.fill_pmt_hists()
 
                 if pmt_waveform.get_pmt_apulse_trigger():
+                    print("pre_pulse")
                     pmt_waveform.save_pmt_waveform_histogram(waveform_root_file)
 
                 del pmt_waveform
