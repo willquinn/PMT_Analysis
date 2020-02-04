@@ -1,6 +1,6 @@
 from scr.PMT_Array import PMT_Array
-from scr.functions import sncd_parse_arguments, get_run_number, get_data_path
-from scr.data_reader_functions import process_crd_file, read_filenames
+from functions.other_functions import sncd_parse_arguments, get_run_number, get_data_path
+from functions.data_reader_functions import process_crd_file, read_filenames
 import time as TIME
 import ROOT
 

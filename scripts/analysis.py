@@ -9,8 +9,8 @@ where [] arguments are optional, the defaults will be used.
 The default settings can be changed in PMT_Object.py in the _inti_() function
 """
 
-from scr.functions import parse_arguments, get_date_time, fit_bismuth_function_from_file
-from scr.data_reader_functions import process_xml_file
+from functions.other_functions import parse_arguments, get_date_time, fit_bismuth_function_from_file
+from functions.data_reader_functions import process_xml_file
 from scr.PMT_Array import PMT_Array
 
 
