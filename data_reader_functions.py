@@ -2,6 +2,7 @@ from PMT_Array import PMT_Array
 from PMT_Waveform import PMT_Waveform
 from xml.dom import minidom
 import time as TIME
+import ROOT
 
 
 def process_xml_file(input_data_file_name: str, pmt_array: PMT_Array):
@@ -100,7 +101,8 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
 
     new_waveform_bool = False
     line_number_int = 0
-    waveform_number_int = 0
+
+    waveform_root_file = ROOT.TFile("waveform_output.root", "RECREATE")
 
     for pmt_data_index, pmt_data_line in enumerate(pmt_data_file.readlines()[10:]):
         pmt_data_line_tokens = pmt_data_line.split(" ")
@@ -143,12 +145,15 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
                     pmt_waveform.pmt_pulse_sweep()
                     pmt_waveform.fill_pmt_hists()
 
+                if pmt_waveform.get_pmt_apulse_trigger():
+                    pmt_waveform.save_pmt_waveform_histogram(waveform_root_file)
+
                 del pmt_waveform
 
             new_waveform_bool = False
 
         line_number_int += 1
-
+    waveform_root_file.Close()
     pmt_data_file.close()
 
 

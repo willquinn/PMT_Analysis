@@ -40,6 +40,7 @@ class PMT_Waveform:
         self.pmt_pulse_charge = 0.0
         self.pmt_apulse_charge = 0.0
         self.pmt_pulse_trigger = False
+        self.pmt_apulse_trigger = False
         self.pmt_waveform_reduced = np.array([], dtype='float')
 
         self.results_dict = {
@@ -154,6 +155,12 @@ class PMT_Waveform:
     def get_pmt_waveform(self):
         return self.pmt_waveform
 
+    def get_pmt_apulse_trigger(self):
+        return self.pmt_apulse_trigger
+
+    def set_pmt_apulse_trigger(self, new_bool: bool):
+        self.pmt_apulse_trigger = new_bool
+
     def get_pmt_pulse(self):
         return self.pmt_waveform[self.get_pmt_pulse_start():self.get_pmt_pulse_end()] - self.pmt_baseline
 
@@ -231,6 +238,7 @@ class PMT_Waveform:
         shape_peaks, _ = find_peaks(matched_filter_shape, height=self.get_pmt_oject().get_setting("mf_shape_threshold"), distance=int(sweep_window_length / 2))
         amplitude_peaks, _ = find_peaks(matched_filter_amplitude, height=self.get_pmt_oject().get_setting("mf_amp_threshold"), distance=int(sweep_window_length / 2))
         if len(shape_peaks) > 0:
+            self.set_pmt_apulse_trigger(True)
             self.set_results_dict("pulse_times", shape_peaks)
 
         '''fig, ax1 = plt.subplots()
