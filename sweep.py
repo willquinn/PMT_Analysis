@@ -4,6 +4,7 @@ from PMT_Array import PMT_Array
 import time as TIME
 import ROOT
 
+
 def main():
     args = sncd_parse_arguments()
     data_file_names = args.i
@@ -43,7 +44,6 @@ def main():
         print("Processed {} of the {} data files...".format(index + 1, len(list_of_data_file_names)))
         estimate = time_length * (len(list_of_data_file_names) - index - 1)
         print(">>> Estimated time till termination %.3f seconds\n\n" % estimate)
-
 
     pmt_array.save_to_file(output_file_name)
 
