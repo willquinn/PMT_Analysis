@@ -140,11 +140,11 @@ class PMT_Object:
                                          0,
                                          self.get_waveform_length())
 
-        pmt_baseline_hist = ROOT.TH1D(self.get_pmt_id() + "_baseline",
-                                       self.get_pmt_id() + "_baseline",
-                                       self.get_nbins(),
-                                       self.get_baseline_setting() - 10,
-                                       self.get_baseline_setting() + 10)
+        pmt_baseline_hist = ROOT.TH1F(self.get_pmt_id() + "_baseline",
+                                      self.get_pmt_id() + "_baseline",
+                                      self.get_nbins(),
+                                      self.get_baseline_setting() - 10,
+                                      self.get_baseline_setting() + 10)
 
         self.histogram_dict = {
             "pulse_charge_hist": pmt_pulse_charge_hist,
