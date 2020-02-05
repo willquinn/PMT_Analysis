@@ -42,3 +42,6 @@ Define the matched filter amplitude cut off
 
 # waveform_length : 1024
 Define the known waveform length
+
+# baseline : 2045
+Define the known baseline
