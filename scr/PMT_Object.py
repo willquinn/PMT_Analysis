@@ -18,6 +18,7 @@ class PMT_Object:
 
         self.number_of_events = 0
         self.sweep_bool = False
+        self.template_bool = False
 
 
         # Default settings
@@ -33,6 +34,7 @@ class PMT_Object:
         resistance = 50 # Ohms
         mf_shape_threshold = 0.9
         mf_amp_threshold = 25
+        baseline = 1000
         waveform_length = 8000
 
         self.setting_dict = {
@@ -48,7 +50,8 @@ class PMT_Object:
             "resistance"            : resistance,
             "mf_shape_threshold"    : mf_shape_threshold,
             "mf_amp_threshold"      : mf_amp_threshold,
-            "waveform_length"       : waveform_length
+            "waveform_length"       : waveform_length,
+            "baseline"              : baseline
         }
 
         self.template_pmt_pulse = np.array([], dtype='float')
@@ -61,79 +64,87 @@ class PMT_Object:
                                      "pulse_mf_shape_mf_amplitude_hist",
                                      "pulse_mf_shape_p_amplitude_hist",
                                      "pulse_mf_amplitude_p_amplitude",
-                                     "pulse_peak_time_hist"
-                                     "pulse_times_hist"
+                                     "pulse_peak_time_hist",
+                                     "pulse_times_hist",
+                                     "baseline_hist"
                                      ]
 
 
     def set_up_histograms(self):
         pmt_pulse_charge_hist = ROOT.TH1F(self.get_pmt_id() + "_pulse_charge_spectrum",
                                           self.get_pmt_id() + "_pulse_charge_spectrum",
-                                          self.get_setting("nbins"),
-                                          self.get_setting("charge_range")[0],
-                                          self.get_setting("charge_range")[1])
+                                          self.get_nbins(),
+                                          self.get_charge_range()[0],
+                                          self.get_charge_range()[1])
 
         pmt_pulse_amplitude_hist = ROOT.TH1F(self.get_pmt_id() + "_pulse_amplitude_spectrum",
                                              self.get_pmt_id() + "_pulse_amplitude_spectrum",
-                                             self.get_setting("nbins"),
-                                             self.get_setting("amp_range")[0],
-                                             self.get_setting("amp_range")[1])
+                                             self.get_nbins(),
+                                             self.get_amp_range()[0],
+                                             self.get_amp_range()[1])
 
         pmt_apulse_charge_hist = ROOT.TH1F(self.get_pmt_id() + "_apulse_charge_spectrum",
                                            self.get_pmt_id() + "_apulse_charge_spectrum",
-                                           self.get_setting("nbins"), self.get_setting("charge_range")[0],
-                                           self.get_setting("charge_range")[1])
+                                           self.get_nbins(),
+                                           self.get_charge_range()[0],
+                                           self.get_charge_range()[1])
 
         pmt_pulse_mf_shape_hist = ROOT.TH1F(self.get_pmt_id() + "_mf_shape",
                                             self.get_pmt_id() + "_mf_shape",
-                                            self.get_setting("nbins"),
-                                            self.get_setting("mf_shape_range")[0],
-                                            self.get_setting("mf_shape_range")[1])
+                                            self.get_nbins(),
+                                            self.get_mf_shape_range()[0],
+                                            self.get_mf_shape_range()[1])
 
         pmt_pulse_mf_amplitude_hist = ROOT.TH1F(self.get_pmt_id() + "_mf_amplitude",
                                                 self.get_pmt_id() + "_mf_amplitude",
-                                                self.get_setting("nbins"),
-                                                self.get_setting("mf_amp_range")[0],
-                                                self.get_setting("mf_amp_range")[1])
+                                                self.get_nbins(),
+                                                self.get_mf_amp_range()[0],
+                                                self.get_mf_amp_range()[1])
 
         pmt_pulse_mf_shape_mf_amplitude_hist = ROOT.TH2F(self.get_pmt_id() + "_mf_shape_mf_amplitude",
                                                          self.get_pmt_id() + "_mf_shape_mf_amplitude",
-                                                         self.get_setting("nbins"),
-                                                         self.get_setting("mf_shape_range")[0],
-                                                         self.get_setting("mf_shape_range")[1],
-                                                         self.get_setting("nbins"),
-                                                         self.get_setting("mf_amp_range")[0],
-                                                         self.get_setting("mf_amp_range")[1])
+                                                         self.get_nbins(),
+                                                         self.get_mf_shape_range()[0],
+                                                         self.get_mf_shape_range()[1],
+                                                         self.get_nbins(),
+                                                         self.get_mf_amp_range()[0],
+                                                         self.get_mf_amp_range()[1])
 
         pmt_pulse_mf_shape_p_amplitude_hist = ROOT.TH2F(self.get_pmt_id() + "_mf_shape_p_amplitude",
                                                         self.get_pmt_id() + "_mf_shape_p_amplitude",
-                                                        self.get_setting("nbins"),
-                                                        self.get_setting("mf_shape_range")[0],
-                                                        self.get_setting("mf_shape_range")[1],
-                                                        self.get_setting("nbins"),
-                                                        self.get_setting("amp_range")[0],
-                                                        self.get_setting("amp_range")[1])
+                                                        self.get_nbins(),
+                                                        self.get_mf_shape_range()[0],
+                                                        self.get_mf_shape_range()[1],
+                                                        self.get_nbins(),
+                                                        self.get_amp_range()[0],
+                                                        self.get_amp_range()[1])
 
         pmt_pulse_mf_amplitude_p_amplitude_hist = ROOT.TH2F(self.get_pmt_id() + "_mf_amplitude_p_amplitude",
                                                             self.get_pmt_id() + "_mf_amplitude_p_amplitude",
-                                                            self.get_setting("nbins"),
-                                                            self.get_setting("mf_amp_range")[0],
-                                                            self.get_setting("mf_amp_range")[1],
-                                                            self.get_setting("nbins"),
-                                                            self.get_setting("amp_range")[0],
-                                                            self.get_setting("amp_range")[1])
+                                                            self.get_nbins(),
+                                                            self.get_mf_amp_range()[0],
+                                                            self.get_mf_amp_range()[1],
+                                                            self.get_nbins(),
+                                                            self.get_amp_range()[0],
+                                                            self.get_amp_range()[1])
 
         pmt_pulse_peak_time_hist = ROOT.TH1I(self.get_pmt_id() + "_pulse_peak_times",
                                              self.get_pmt_id() + "_pulse_peak_times",
-                                             self.get_setting("waveform_length"),
+                                             self.get_waveform_length(),
                                              0,
-                                             self.get_setting("waveform_length"))
+                                             self.get_waveform_length())
 
         pmt_pulse_times_hist = ROOT.TH1I(self.get_pmt_id() + "_pulse_times",
-                                      self.get_pmt_id() + "_pulse_times",
-                                      self.get_setting("waveform_length"),
-                                      0,
-                                      self.get_setting("waveform_length"))
+                                         self.get_pmt_id() + "_pulse_times",
+                                         self.get_waveform_length(),
+                                         0,
+                                         self.get_waveform_length())
+
+        pmt_baseline_hist = ROOT.TH1D(self.get_pmt_id() + "_baseline",
+                                       self.get_pmt_id() + "_baseline",
+                                       self.get_nbins(),
+                                       self.get_baseline_setting() - 10,
+                                       self.get_baseline_setting() + 10)
 
         self.histogram_dict = {
             "pulse_charge_hist": pmt_pulse_charge_hist,
@@ -145,8 +156,15 @@ class PMT_Object:
             "pulse_mf_shape_p_amplitude_hist": pmt_pulse_mf_shape_p_amplitude_hist,
             "pulse_mf_amplitude_p_amplitude_hist": pmt_pulse_mf_amplitude_p_amplitude_hist,
             "pulse_peak_time_hist": pmt_pulse_peak_time_hist,
-            "pulse_time_hists": pmt_pulse_times_hist
+            "pulse_time_hists": pmt_pulse_times_hist,
+            "baseline": pmt_baseline_hist
         }
+
+    def get_template_bool(self):
+        return self.template_bool
+
+    def set_template_bool(self,  new_bool: bool):
+        self.template_bool = new_bool
 
     def get_normalisation_factor(self, vector: list):
         norm = 0.0
@@ -172,6 +190,12 @@ class PMT_Object:
 
     def set_resistance(self, new_resistance: float):
         self.set_setting("resistance", new_resistance)
+
+    def get_waveform_length(self):
+        return self.get_setting("waveform_length")
+
+    def set_waveform_length(self, new_waveform_length: int):
+        self.set_setting("waveform_length", new_waveform_length)
 
     def get_apulse_region(self):
         return self.get_setting("apulse_region")
@@ -208,8 +232,14 @@ class PMT_Object:
     def get_nbins(self):
         return self.get_setting("nbins")
 
-    def set_nbins(self, new_nbins):
+    def set_nbins(self, new_nbins: int):
         self.set_setting("nbins", new_nbins)
+
+    def get_baseline_setting(self):
+        return self.get_setting("baseline")
+
+    def set_baseline_setting(self, new_baseline: int):
+        self.set_setting("baseline", new_baseline)
 
     def get_charge_range(self):
         return self.get_setting("charge_range")
@@ -279,6 +309,8 @@ class PMT_Object:
         self.set_template_pmt_pulse(np.array(template_list, dtype='float') / norm)
         # print(self.get_template_pmt_pulse())
 
+        self.set_template_bool(True)
+
     def set_template_pmt_pulse(self, new_template_pmt_pulse: np.array):
         self.template_pmt_pulse = new_template_pmt_pulse
 
@@ -347,16 +379,23 @@ class PMT_Object:
         for i_value in range(len(value)):
             self.get_histogram("pulse_time_hists").Fill(value[i_value])
 
+    def get_pmt_baseline_hist(self):
+        return self.get_histogram("baseline")
+
+    def fill_pmt_baseline_hist(self, value: float):
+        self.get_histogram("baseline").Fill(value)
+
     def fill_pmt_hists(self, results: dict):
 
         #print(results)
         pulse_charge: float = results["pulse_charge"]
         pulse_amplitude: float = results["pulse_amplitude"]
         apulse_charge: float = results["apulse_charge"]
-        mf_amplitude: float = results["mf_pulse_amp"]
-        mf_shape: float = results["mf_pulse_shape"]
+        mf_amplitude: float = results["pulse_mf_amp"]
+        mf_shape: float = results["pulse_mf_shape"]
         pulse_peak_time: int = results["pulse_peak_time"]
         pulse_times: list = results["pulse_times"]
+        baseline: float = results["baseline"]
 
         self.fill_pmt_pulse_charge_hist(pulse_charge)
         self.fill_pmt_pulse_amplitude_hist(pulse_amplitude)
@@ -368,6 +407,7 @@ class PMT_Object:
         self.fill_pmt_pulse_mf_amplitude_p_amplitude_hist(pulse_amplitude, mf_amplitude)
         self.fill_pmt_pulse_peak_time_hist(pulse_peak_time)
         self.fill_pmt_pulse_times_hist(pulse_times)
+        self.fill_pmt_baseline_hist(baseline)
 
         self.set_number_of_events(self.get_event_number() + 1)
 

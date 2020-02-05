@@ -8,6 +8,9 @@ Without uncommenting this file reads sample data and produces two files:
 William Quinn 2020
 """
 
+import sys
+sys.path.insert(1, '..')
+
 from scr.PMT_Array import PMT_Array
 from scr.PMT_Object import PMT_Object
 from scr.PMT_Waveform import PMT_Waveform
@@ -37,7 +40,7 @@ def main():
     # equal to the pmts in your grid
     pmt_array = PMT_Array(topology, "test")
 
-    # Set the cuts from a config file. This also sets up the histograms
+    # Set the cuts from a config file. This also sets up the histograms in the array format
     pmt_array.apply_setting("example_config_file.txt")
 
     # Or you can create a PMT_Oject directly. The Array class is a simple object
@@ -93,6 +96,7 @@ def main():
     # Once you are done with looping over the data you can look at the results
     pmt_object.save_to_file("test_output_root_file.root")
     pmt_array.save_to_file("test_output_root_file_array_version.root")
+    print(">>> Success")
 
 
 if __name__ == '__main__':

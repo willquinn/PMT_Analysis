@@ -8,6 +8,7 @@
 import numpy as np
 from scipy.signal import find_peaks
 from scr.PMT_Object import PMT_Object
+import matplotlib.pyplot as plt
 import ROOT
 
 
@@ -39,21 +40,15 @@ class PMT_Waveform:
         self.pmt_baseline = 0.0
         self.pmt_pulse_charge = 0.0
         self.pmt_apulse_charge = 0.0
+        self.pmt_pulse_mf_shape = 0.0
+        self.pmt_pulse_mf_amp = 0.0
         self.pmt_pulse_trigger = False
         self.pmt_apulse_trigger = False
+        self.pmt_pulse_times = []
         self.pmt_waveform_reduced = np.array([], dtype='float')
 
-        self.results_dict = {
-            "pulse_charge"      : 0.0,
-            "pulse_amplitude"   : 0.0,
-            "apulse_charge"     : 0.0,
-            "mf_pulse_shape"    : 0.0,
-            "mf_pulse_amp"      : 0.0,
-            "pulse_peak_time"   : self.get_pmt_pulse_peak_position(),
-            "pulse_times"       : []
-        }
-
-        if self.get_pmt_pulse_peak_position() < self.get_pmt_oject().get_pulse_time_threshold():
+        self.results_dict = {}
+        if self.get_pmt_pulse_peak_position() < self.get_pmt_object().get_pulse_time_threshold():
             pass
         else:
             # TODO: move this to after cuts. Deal with all cuts here
@@ -66,33 +61,59 @@ class PMT_Waveform:
             self.set_pmt_pulse_start(self.get_pmt_pulse_peak_position() - 20)
             self.set_pmt_pulse_end(self.get_pmt_pulse_peak_position() + 30)
 
-            self.set_pmt_pulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_pulse_start():self.get_pmt_pulse_end()] - self.get_pmt_baseline()))/self.get_pmt_oject().get_resistance())
-            if self.get_pmt_pulse_charge() < self.get_pmt_oject().get_setting("charge_cut"):
+            self.set_pmt_pulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_pulse_start():self.get_pmt_pulse_end()] - self.get_pmt_baseline()))/self.get_pmt_object().get_resistance())
+            if self.get_pmt_pulse_charge() < self.get_pmt_object().get_setting("charge_cut"):
+                self.update_results_dict()
+                self.pmt_waveform_length = self.pmt_waveform.size
                 return
             else:
                 self.set_pmt_pulse_trigger(True)
 
-                self.set_pmt_apulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_oject().get_apulse_region():] - self.get_pmt_baseline()))/self.get_pmt_oject().get_resistance())
+                self.set_pmt_apulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_object().get_apulse_region():] - self.get_pmt_baseline()))/self.get_pmt_object().get_resistance())
 
                 self.set_pmt_waveform_reduced()
                 self.set_pmt_pulse_peak_amplitude(-1 * np.amin(self.get_pmt_waveform_reduced()))
 
-                self.results_dict["pulse_charge"] = self.get_pmt_pulse_charge()
-                self.results_dict["pulse_amplitude"] = self.get_pmt_pulse_peak_amplitude()
-                self.results_dict["apulse_charge"] = self.get_pmt_apulse_charge()
-                self.results_dict["pulse_peak_time"] = self.get_pmt_pulse_peak_position()
+                # Only sweep the waveform if there is a template
+                if self.get_pmt_object().get_template_bool():
 
-                if self.get_pmt_oject().get_sweep_bool():
-                    self.pmt_pulse_sweep()
+                    pmt_pulse = self.get_pmt_waveform()[self.get_pmt_pulse_peak_position() - np.amin(self.get_pmt_object().get_template_pmt_pulse()): self.get_pmt_pulse_peak_position() - np.amin(self.get_pmt_object().get_template_pmt_pulse()) + self.get_pmt_object().get_template_pmt_pulse().size]
 
+                    inner_product = np.dot(self.pmt_object.get_template_pmt_pulse(), pmt_pulse)
+                    self.get_pmt_object().get_normalisation_factor(pmt_pulse)
+
+                    self.set_pmt_pulse_mf_amp(inner_product)
+                    self.set_pmt_pulse_mf_shape(inner_product/self.get_pmt_object().get_normalisation_factor(pmt_pulse))
+
+                    fig, ax1 = plt.subplots()
+                    color = 'tab:red'
+                    ax1.plot(pmt_pulse, color=color)
+                    ax1.set_xlabel('timestamp (ns)')
+                    ax1.set_ylabel('ADC /mV', color=color)
+                    ax1.tick_params(axis='y', labelcolor=color)
+                    color = 'tab:blue'
+                    ax2 = ax1.twinx()
+                    ax2.plot(self.pmt_object.get_template_pmt_pulse(), color=color)
+                    ax2.set_ylabel('Normalised ADC', color=color)  # we already handled the x-label with ax1
+                    ax2.tick_params(axis='y', labelcolor=color)
+                    fig.tight_layout()
+                    plt.text(0, 0, "Shape: {}".format(self.get_pmt_pulse_mf_shape()))
+                    plt.show(block=True)
+                    plt.close()
+
+                    if self.get_pmt_object().get_sweep_bool():
+                        self.pmt_pulse_sweep()
+
+        self.update_results_dict()
         # Store the pmt waveform length
         self.pmt_waveform_length = self.pmt_waveform.size
         # self.fill_pmt_hists()
+        return
 
     def get_pulse_trigger(self):
         return self.pmt_pulse_trigger
 
-    def get_pmt_oject(self):
+    def get_pmt_object(self):
         return self.pmt_object
 
     def get_pmt_pulse_peak_amplitude(self):
@@ -171,7 +192,20 @@ class PMT_Waveform:
         return self.pmt_trace_id
 
     def fill_pmt_hists(self):
+        #print(self.get_results_dict())
         self.pmt_object.fill_pmt_hists(self.get_results_dict())
+
+    def update_results_dict(self):
+        self.results_dict = {
+            "pulse_charge": self.get_pmt_pulse_charge(),
+            "pulse_amplitude": self.get_pmt_pulse_peak_amplitude(),
+            "apulse_charge": self.get_pmt_apulse_charge(),
+            "pulse_mf_shape": self.get_pmt_pulse_mf_shape(),
+            "pulse_mf_amp": self.get_pmt_pulse_mf_amp(),
+            "pulse_peak_time": self.get_pmt_pulse_peak_position(),
+            "pulse_times": self.get_pmt_pulse_times(),
+            "baseline": self.get_pmt_baseline()
+        }
 
     def save_pmt_waveform_histogram(self, root_file: ROOT.TFile):
         name = self.pmt_object.get_pmt_id() + self.get_pmt_trace_id()
@@ -187,8 +221,8 @@ class PMT_Waveform:
         pass
 
     def pmt_pulse_sweep(self):
-        sweep_start = self.get_pmt_oject().get_setting("sweep_range")[0]
-        sweep_end = self.get_pmt_oject().get_setting("sweep_range")[1]
+        sweep_start = self.get_pmt_object().get_sweep_range()[0]
+        sweep_end = self.get_pmt_object().get_sweep_range()[1]
         sweep_window_length = self.pmt_object.get_template_pmt_pulse().size
 
         # plt.plot(self.get_pmt_waveform_reduced())
@@ -235,11 +269,13 @@ class PMT_Waveform:
         matched_filter_amplitude = np.array(matched_filter_amplitude_list)
 
         # TODO: check if both thresholds have been breached
-        shape_peaks, _ = find_peaks(matched_filter_shape, height=self.get_pmt_oject().get_setting("mf_shape_threshold"), distance=int(sweep_window_length / 2))
-        amplitude_peaks, _ = find_peaks(matched_filter_amplitude, height=self.get_pmt_oject().get_setting("mf_amp_threshold"), distance=int(sweep_window_length / 2))
+        shape_peaks, _ = find_peaks(matched_filter_shape, height=self.get_pmt_object().get_setting("mf_shape_threshold"), distance=int(sweep_window_length / 2))
+        amplitude_peaks, _ = find_peaks(matched_filter_amplitude, height=self.get_pmt_object().get_setting("mf_amp_threshold"), distance=int(sweep_window_length / 2))
         if len(shape_peaks) > 0:
             self.set_pmt_apulse_trigger(True)
-            self.set_results_dict("pulse_times", shape_peaks)
+            self.set_pmt_pulse_times(shape_peaks)
+
+        self.update_results_dict()
 
         '''fig, ax1 = plt.subplots()
 
@@ -266,4 +302,20 @@ class PMT_Waveform:
         fig.tight_layout()  # otherwise the right y-label is slightly clipped
         plt.show(block=True)'''
 
+    def get_pmt_pulse_mf_shape(self):
+        return self.pmt_pulse_mf_shape
 
+    def set_pmt_pulse_mf_shape(self, new_shape: float):
+        self.pmt_pulse_mf_shape = new_shape
+
+    def get_pmt_pulse_mf_amp(self):
+        return self.pmt_pulse_mf_amp
+
+    def set_pmt_pulse_mf_amp(self, new_amp: float):
+        self.pmt_pulse_mf_amp = new_amp
+
+    def get_pmt_pulse_times(self):
+        return self.pmt_pulse_times
+
+    def set_pmt_pulse_times(self, new_pulse_times: list):
+        self.pmt_pulse_times = new_pulse_times
