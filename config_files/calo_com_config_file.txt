@@ -37,7 +37,7 @@ Define the resistance that the pmt read out is read, default is 50 Ohms
 # mf_shape_threshold : 0.85
 Define the matched filter shape cut off
 
-# mf_amp_threshold : 10
+# mf_amp_threshold : 1
 Define the matched filter amplitude cut off
 
 # waveform_length : 1024
