@@ -1,5 +1,4 @@
 import sys
-
 sys.path.insert(1, '..')
 
 from scr.PMT_Array import PMT_Array
