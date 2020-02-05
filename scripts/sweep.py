@@ -1,3 +1,7 @@
+import sys
+
+sys.path.insert(1, '..')
+
 from scr.PMT_Array import PMT_Array
 from functions.other_functions import sncd_parse_arguments, get_run_number, get_data_path
 from functions.data_reader_functions import process_crd_file, read_filenames
@@ -32,7 +36,6 @@ def main():
 
     data_path = get_data_path(data_file_names)
 
-
     temp_start = TIME.time()
     for index, data_file_name in enumerate(list_of_data_file_names):
         process_crd_file(data_path + data_file_name, pmt_array)
@@ -49,11 +52,14 @@ def main():
 
 
 def create_template_histogram_temp():
-    source_file = ROOT.TFile("/Users/willquinn/Documents/PhD/SuperNEMO/SNEMO_ComData_Analysis/GV_XW_ComData/Output_files/Average_Waveforms_run214.root", "READ")
+    source_file = ROOT.TFile(
+        "/Users/willquinn/Documents/PhD/SuperNEMO/SNEMO_ComData_Analysis/GV_XW_ComData/Output_files/Average_Waveforms_run214.root",
+        "READ")
     source_waveform = ROOT.TH1F(source_file.Get("Waveform_10_3_0"))
-    #source_file.Close()
+    # source_file.Close()
 
-    output_file = ROOT.TFile("/Users/willquinn/Documents/PhD/SuperNEMO/SNEMO_ComData_Analysis/template.root", "RECREATE")
+    output_file = ROOT.TFile("/Users/willquinn/Documents/PhD/SuperNEMO/SNEMO_ComData_Analysis/template.root",
+                             "RECREATE")
     template_hist = ROOT.TH1F("template", "template", 80, 0, 80)
     output_file.cd()
 
@@ -62,13 +68,15 @@ def create_template_histogram_temp():
     temp_list = []
     for i_bin in range(int(source_waveform.GetEntries())):
         temp_list.append(str(source_waveform.GetBinContent(i_bin)))
-        #print(i_bin, " ", str(source_waveform.GetBinContent(i_bin + 1)))
+        # print(i_bin, " ", str(source_waveform.GetBinContent(i_bin + 1)))
     pmt_waveform = PMT_Waveform(temp_list, pmt_object)
 
     for i_bin in range(80):
-        template_hist.SetBinContent(i_bin+1, pmt_waveform.get_pmt_waveform()[260 + i_bin] - pmt_waveform.get_pmt_baseline())
+        template_hist.SetBinContent(i_bin + 1,
+                                    pmt_waveform.get_pmt_waveform()[260 + i_bin] - pmt_waveform.get_pmt_baseline())
     output_file.Write()
     output_file.Close()
+
 
 if __name__ == '__main__':
     main()
