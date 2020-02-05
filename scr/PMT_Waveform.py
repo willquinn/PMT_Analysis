@@ -75,7 +75,7 @@ class PMT_Waveform:
                 self.set_pmt_pulse_peak_amplitude(-1 * np.amin(self.get_pmt_waveform_reduced()))
 
                 # Only sweep the waveform if there is a template
-                if self.get_pmt_object().get_template_bool():
+                if self.get_pmt_object().get_template_bool() and self.get_pmt_pulse_peak_position() > self.get_pmt_object().get_waveform_length() - self.get_pmt_object().get_template_pmt_pulse().size:
 
                     pmt_pulse = self.get_pmt_waveform()[self.get_pmt_pulse_peak_position() - np.argmin(self.get_pmt_object().get_template_pmt_pulse()): self.get_pmt_pulse_peak_position() - np.argmin(self.get_pmt_object().get_template_pmt_pulse()) + self.get_pmt_object().get_template_pmt_pulse().size] - self.get_pmt_baseline()
 
