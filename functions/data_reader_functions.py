@@ -165,6 +165,8 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
     waveform_root_file.Close()
     pmt_data_file.close()
 
+    pmt_array.get_pmt_object_number(0).get_histogram("baseline").Draw()
+
 
 def read_filenames(input_file_name: str):
     filenames_list = []
