@@ -102,7 +102,7 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
     new_waveform_bool = False
     line_number_int = 0
 
-    print(pmt_array.get_pmt_object_number(0).get_histogram_dict().keys())
+    # print(pmt_array.get_pmt_object_number(0).get_histogram_dict().keys())
 
     waveform_root_file = ROOT.TFile("waveform_output.root", "RECREATE")
 
@@ -144,8 +144,8 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
 
                 pmt_waveform = PMT_Waveform(pmt_adc_values, pmt_array.get_pmt_object_number(pmt_number))
                 if pmt_waveform.get_pulse_trigger():
-                    print("results: ", pmt_waveform.get_results_dict())
-                    print("")
+                    '''print("results: ", pmt_waveform.get_results_dict())
+                    print("")'''
                     '''print("MF Amplitude: ",pmt_waveform.get_pmt_pulse_mf_amp())
                     print("MF Shape: ", pmt_waveform.get_pmt_pulse_mf_shape())
                     print("Amplitude: ", pmt_waveform.get_pmt_pulse_peak_amplitude())
