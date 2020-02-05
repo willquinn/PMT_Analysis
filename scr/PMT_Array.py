@@ -2,35 +2,6 @@ import ROOT
 from scr.PMT_Object import PMT_Object
 
 
-def read_config_file(config_file_name: str):
-    try:
-        config_file = open(config_file_name, 'r')
-    except FileNotFoundError as fnf_error:
-        print(fnf_error)
-        raise Exception("Error opening config file")
-
-    output_list = []
-    for i_line, line in enumerate(config_file.readlines()):
-        tokens = line.split(" ")
-        if tokens[0] == '#':
-            description = tokens[1].strip()
-            value = tokens[3].split(",")
-            value_ = []
-            if len(value) == 1:
-                try:
-                    value_ = int(value[0].strip())
-                except:
-                    value_ = float(value[0].strip())
-            else:
-                for i in range(len(value)):
-                    value_.append(int(value[i].strip()))
-
-            temp_list = [description, value_]
-            output_list.append(temp_list)
-
-    return output_list
-
-
 class PMT_Array:
 
     def __init__(self, topology: list, data_id: str):
@@ -84,7 +55,7 @@ class PMT_Array:
 
     def apply_setting(self, config_file_name: str):
         if config_file_name is not None:
-            stuff_list = read_config_file(config_file_name)
+            stuff_list = self.read_config_file(config_file_name)
 
             for i_pmt in range(self.get_pmt_total_number()):
                 for i_setting in range(len(stuff_list)):
@@ -102,6 +73,34 @@ class PMT_Array:
     def set_sweep_bool(self, new_bool: bool):
         for i_pmt in range(self.get_pmt_total_number()):
             self.get_pmt_object_number(i_pmt).set_sweep_bool(new_bool)
+
+    def read_config_file(self, config_file_name: str):
+        try:
+            config_file = open(config_file_name, 'r')
+        except FileNotFoundError as fnf_error:
+            print(fnf_error)
+            raise Exception("Error opening config file")
+
+        output_list = []
+        for i_line, line in enumerate(config_file.readlines()):
+            tokens = line.split(" ")
+            if tokens[0] == '#':
+                description = tokens[1].strip()
+                value = tokens[3].split(",")
+                value_ = []
+                if len(value) == 1:
+                    try:
+                        value_ = int(value[0].strip())
+                    except:
+                        value_ = float(value[0].strip())
+                else:
+                    for i in range(len(value)):
+                        value_.append(int(value[i].strip()))
+
+                temp_list = [description, value_]
+                output_list.append(temp_list)
+
+        return output_list
 
     def fit_bismuth_function(self):
         # TODO: This function needs OOP
