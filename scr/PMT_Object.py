@@ -403,7 +403,7 @@ class PMT_Object:
         self.fill_pmt_pulse_mf_shape_hist(mf_shape)
         self.fill_pmt_pulse_mf_amplitude_hist(mf_amplitude)
         self.fill_pmt_pulse_mf_shape_mf_amplitude(mf_shape, mf_amplitude)
-        self.fill_pmt_pulse_mf_shape_p_amplitude_hist(pulse_amplitude, mf_shape)
+        self.fill_pmt_pulse_mf_shape_p_amplitude_hist(mf_shape, pulse_amplitude)
         self.fill_pmt_pulse_mf_amplitude_p_amplitude_hist(pulse_amplitude, mf_amplitude)
         self.fill_pmt_pulse_peak_time_hist(pulse_peak_time)
         self.fill_pmt_pulse_times_hist(pulse_times)
