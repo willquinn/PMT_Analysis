@@ -102,6 +102,8 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
     new_waveform_bool = False
     line_number_int = 0
 
+    print(pmt_array.get_pmt_object_number(0).get_histogram_dict().keys())
+
     waveform_root_file = ROOT.TFile("waveform_output.root", "RECREATE")
 
     for pmt_data_index, pmt_data_line in enumerate(pmt_data_file.readlines()[10:]):
