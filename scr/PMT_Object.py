@@ -8,7 +8,6 @@
 
 import ROOT
 import numpy as np
-from functions import get_normalisation_factor
 
 
 class PMT_Object:
@@ -149,6 +148,12 @@ class PMT_Object:
             "pulse_time_hists": pmt_pulse_times_hist
         }
 
+    def get_normalisation_factor(self, vector: list):
+        norm = 0.0
+        for i in range(len(vector)):
+            norm += vector[i] * vector[i]
+        return np.sqrt(norm)
+
     def get_setting_dict(self):
         return self.setting_dict
 
@@ -269,7 +274,7 @@ class PMT_Object:
         for i_bin in range(int(template_histogram.GetEntries())):
             template_list.append(template_histogram.GetBinContent(i_bin))
 
-        norm = get_normalisation_factor(template_list)
+        norm = self.get_normalisation_factor(template_list)
 
         self.set_template_pmt_pulse(np.array(template_list, dtype='float') / norm)
         # print(self.get_template_pmt_pulse())
