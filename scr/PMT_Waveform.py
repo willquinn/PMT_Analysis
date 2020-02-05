@@ -85,22 +85,6 @@ class PMT_Waveform:
                     self.set_pmt_pulse_mf_amp(inner_product)
                     self.set_pmt_pulse_mf_shape(inner_product/self.get_pmt_object().get_normalisation_factor(pmt_pulse))
 
-                    fig, ax1 = plt.subplots()
-                    color = 'tab:red'
-                    ax1.plot(pmt_pulse, color=color)
-                    ax1.set_xlabel('timestamp (ns)')
-                    ax1.set_ylabel('ADC /mV', color=color)
-                    ax1.tick_params(axis='y', labelcolor=color)
-                    color = 'tab:blue'
-                    ax2 = ax1.twinx()
-                    ax2.plot(self.pmt_object.get_template_pmt_pulse(), color=color)
-                    ax2.set_ylabel('Normalised ADC', color=color)  # we already handled the x-label with ax1
-                    ax2.tick_params(axis='y', labelcolor=color)
-                    fig.tight_layout()
-                    plt.text(0, 0, "Shape: {}".format(self.get_pmt_pulse_mf_shape()))
-                    plt.show(block=True)
-                    plt.close()
-
                     if self.get_pmt_object().get_sweep_bool():
                         self.pmt_pulse_sweep()
 
