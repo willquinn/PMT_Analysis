@@ -157,7 +157,7 @@ class PMT_Object:
             "pulse_mf_amplitude_p_amplitude_hist": pmt_pulse_mf_amplitude_p_amplitude_hist,
             "pulse_peak_time_hist": pmt_pulse_peak_time_hist,
             "pulse_time_hists": pmt_pulse_times_hist,
-            "baseline": pmt_baseline_hist
+            "baseline_hist": pmt_baseline_hist
         }
 
     def get_template_bool(self):
@@ -380,10 +380,10 @@ class PMT_Object:
             self.get_histogram("pulse_time_hists").Fill(value[i_value])
 
     def get_pmt_baseline_hist(self):
-        return self.get_histogram("baseline")
+        return self.get_histogram("baseline_hist")
 
     def fill_pmt_baseline_hist(self, value: float):
-        self.get_histogram("baseline").Fill(value)
+        self.get_histogram("baseline_hist").Fill(value)
 
     def fill_pmt_hists(self, results: dict):
 
