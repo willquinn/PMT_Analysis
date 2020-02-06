@@ -35,9 +35,11 @@ def main():
 
     data_path = get_data_path(data_file_names)
 
+    waveform_output_root_file = ROOT.TFile("waveforms.root", "RECREATE")
+
     temp_start = TIME.time()
     for index, data_file_name in enumerate(list_of_data_file_names):
-        process_crd_file(data_path + data_file_name, pmt_array)
+        process_crd_file(data_path + data_file_name, pmt_array, waveform_output_root_file)
 
         intermediate = TIME.time()
         time_length = intermediate - temp_start

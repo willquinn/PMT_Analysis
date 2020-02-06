@@ -34,7 +34,7 @@ Define the region within the waveform that is the afterpulse region
 # resistance : 50
 Define the resistance that the pmt read out is read, default is 50 Ohms
 
-# mf_shape_threshold : 0.8
+# mf_shape_threshold : 0.9
 Define the matched filter shape cut off
 
 # mf_amp_threshold : 1

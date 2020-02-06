@@ -91,7 +91,7 @@ def read_test_file():
     return data_list
 
 
-def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
+def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array, waveform_output_file: ROOT.TFile):
 
     try:
         pmt_data_file = open(input_data_file_name, 'r')
@@ -103,8 +103,6 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
     line_number_int = 0
 
     # print(pmt_array.get_pmt_object_number(0).get_histogram_dict().keys())
-
-    waveform_root_file = ROOT.TFile("waveform_output.root", "RECREATE")
 
     for pmt_data_index, pmt_data_line in enumerate(pmt_data_file.readlines()[10:]):
         pmt_data_line_tokens = pmt_data_line.split(" ")
@@ -155,14 +153,23 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array):
 
                 if pmt_waveform.get_pmt_apulse_trigger():
                     print("pre_pulse")
-                    pmt_waveform.save_pmt_waveform_histogram(waveform_root_file)
+                    # pmt_waveform.save_pmt_waveform_histogram(waveform_root_file)
+                    temp_hist = ROOT.TH1I(pmt_waveform.get_pmt_trace_id(),
+                                          pmt_waveform.get_pmt_trace_id(),
+                                          pmt_waveform.get_pmt_waveform_length(),
+                                          0,
+                                          pmt_waveform.get_pmt_waveform_length())
+                    for i_value in range(pmt_waveform.get_pmt_waveform_length()):
+                        temp_hist.SetBinContent(i_value + 1, pmt_waveform.get_pmt_waveform()[i_value])
+                    waveform_output_file
+                    temp_hist.Write()
+                    del temp_hist
 
                 del pmt_waveform
 
             new_waveform_bool = False
 
         line_number_int += 1
-    waveform_root_file.Close()
     pmt_data_file.close()
 
     #pmt_array.get_pmt_object_number(0).get_histogram("baseline_h").Draw()
