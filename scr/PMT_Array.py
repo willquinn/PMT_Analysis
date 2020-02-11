@@ -9,9 +9,9 @@ class PMT_Array:
         self.pmt_object_array = []
         self.pmt_total_number = topology[0] * topology[1]
 
-        for i in range(topology[0]):
-            for j in range(topology[1]):
-                pmt_number = i * topology[1] + j
+        for i_row in range(topology[0]):
+            for i_col in range(topology[1]):
+                pmt_number = i_col + i_row*topology[1]
                 pmt_object = PMT_Object(str(pmt_number), data_id)
                 self.append_pmt_object_array(pmt_object)
                 del pmt_object
@@ -29,7 +29,7 @@ class PMT_Array:
     def get_pmt_topology(self):
         return self.pmt_topology
 
-    def get_pmt_oject_array(self):
+    def get_pmt_object_array(self):
         return self.pmt_object_array
 
     def get_pmt_total_number(self):
@@ -43,7 +43,7 @@ class PMT_Array:
         if len(pmt_position) == 1:
             pmt_number = pmt_position[0]
         else:
-            pmt_number = pmt_position[0] * self.get_pmt_topology()[0] + pmt_position[1]
+            pmt_number = pmt_position[0] * self.get_pmt_topology()[1] + pmt_position[1]
         return self.pmt_object_array[pmt_number]
 
     def get_pmt_object_number(self, pmt_number: int):
