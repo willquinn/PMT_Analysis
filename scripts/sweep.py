@@ -47,7 +47,49 @@ def main():
         temp_start = intermediate
         print("Processed {} of the {} data files...".format(index + 1, len(list_of_data_file_names)))
         estimate = time_length * (len(list_of_data_file_names) - index - 1)
-        print(">>> Estimated time till termination %.3f seconds\n\n" % estimate)
+        if estimate >= 60 and estimate < 3600:
+            minute = estimate/60.0
+            print(">>> Estimated time till termination %.1f minutes\n\n" % minute)
+        elif estimate >= 3600:
+            hours = estimate / 3600.0
+            print(">>> Estimated time till termination %.1f hours\n\n" % hours)
+        else:
+            print(">>> Estimated time till termination %.1f seconds\n\n" % estimate)
+
+    hist_2D_shapes = ROOT.TH2F("PMT_Pulse_Shapes",
+                               "PMT_Pulse_Shapes",
+                               pmt_array.get_pmt_topology()[0],
+                               0,
+                               pmt_array.get_pmt_topology()[0],
+                               pmt_array.get_pmt_topology()[1],
+                               0,
+                               pmt_array.get_pmt_topology()[1])
+
+    hist_2D_shapes.SetXTitle("Column OM")
+    hist_2D_shapes.SetYTitle("Row OM")
+
+    hist_2D_shapes_SD = ROOT.TH2F("PMT_Pulse_Shapes_SD",
+                                  "PMT_Pulse_Shapes_SD",
+                                  pmt_array.get_pmt_topology()[0],
+                                  0,
+                                  pmt_array.get_pmt_topology()[0],
+                                  pmt_array.get_pmt_topology()[1],
+                                  0,
+                                  pmt_array.get_pmt_topology()[1])
+
+    hist_2D_shapes_SD.SetXTitle("Column OM")
+    hist_2D_shapes_SD.SetYTitle("Row OM")
+
+    for i_row in range(pmt_array.get_pmt_topology()[0]):
+        for i_col in range(pmt_array.get_pmt_topology()[1]):
+            hist_2D_shapes.Fill(i_row, i_col, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetMean())
+            hist_2D_shapes_SD.Fill(i_row, i_col, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetStdDev())
+
+    hist_2D_root_file = ROOT.TFile("2D_shape_hist", "RECREATE")
+    hist_2D_root_file.cd()
+    hist_2D_shapes.Write()
+    hist_2D_shapes_SD.Write()
+    hist_2D_root_file.Close()
 
     pmt_array.save_to_file(output_file_name)
 
