@@ -114,10 +114,10 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array, waveform_o
             pass
 
         if new_waveform_bool and line_number_int == 1:
-            pmt_slot_number = int(pmt_data_line_tokens[1])
-            pmt_channel_number = int(pmt_data_line_tokens[3])
+            pmt_slot_number = int(pmt_data_line_tokens[1]) # Column
+            pmt_channel_number = int(pmt_data_line_tokens[3]) # Row
 
-            pmt_number = int(pmt_slot_number*pmt_array.get_pmt_topology()[1] + pmt_channel_number)
+            pmt_number = int(pmt_slot_number + pmt_array.get_pmt_topology()[1]*pmt_channel_number)
             '''if pmt_slot_number == 0:
                 print(pmt_slot_number, pmt_channel_number)
                 print(pmt_number)'''
@@ -140,7 +140,7 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array, waveform_o
                 for i_adc in range(len(pmt_data_line_tokens)):
                     pmt_adc_values.append(pmt_data_line_tokens[i_adc])
 
-                pmt_waveform = PMT_Waveform(pmt_adc_values, pmt_array.get_pmt_object_number(pmt_number))
+                pmt_waveform = PMT_Waveform(pmt_adc_values, pmt_array.get_pmt_object_position([pmt_channel_number, pmt_slot_number]))
                 if pmt_waveform.get_pulse_trigger():
                     '''print("results: ", pmt_waveform.get_results_dict())
                     print("")'''
