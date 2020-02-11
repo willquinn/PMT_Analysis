@@ -47,7 +47,7 @@ class PMT_Array:
         return self.pmt_object_array[pmt_number]
 
     def get_pmt_object_number(self, pmt_number: int):
-        return self.get_pmt_oject_array()[pmt_number]
+        return self.get_pmt_object_array()[pmt_number]
 
     def set_pmt_templates(self, template_root_file_name_list: list, template_histogram_name: str):
         for i_pmt in range(self.get_pmt_total_number()):
