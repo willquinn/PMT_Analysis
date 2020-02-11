@@ -18,7 +18,7 @@ def main():
 
     run_number = get_run_number(data_file_names)
 
-    topology = [13, 20]
+    topology = [20, 20]
 
     template_list = read_filenames(template_file_names)
     list_of_data_file_names = read_filenames(data_file_names)
@@ -86,7 +86,7 @@ def main():
             hist_2D_shapes.Fill(i_row, i_col, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetMean())
             hist_2D_shapes_SD.Fill(i_row, i_col, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetStdDev())
 
-    hist_2D_root_file = ROOT.TFile("2D_shape_hist", "RECREATE")
+    hist_2D_root_file = ROOT.TFile("2D_shape_hist.root", "RECREATE")
     hist_2D_root_file.cd()
     hist_2D_shapes.Write()
     hist_2D_shapes_SD.Write()
