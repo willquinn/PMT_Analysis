@@ -100,6 +100,8 @@ def main():
     hist_2D_shapes.Write()
     hist_2D_shapes_SD.Write()
     hist_2D_root_file.Close()
+    hist_2D_mapping.Write()
+    hist_2D_mapping.Close()
 
     pmt_array.save_to_file(output_file_name)
 

@@ -86,7 +86,6 @@ class PMT_Waveform:
                     self.set_pmt_pulse_mf_shape(inner_product/self.get_pmt_object().get_normalisation_factor(pmt_pulse))
 
                     if self.get_pmt_object().get_sweep_bool():
-                        print("sweeping")
                         self.pmt_pulse_sweep()
 
         self.update_results_dict()
@@ -257,6 +256,7 @@ class PMT_Waveform:
         shape_peaks, _ = find_peaks(matched_filter_shape, height=self.get_pmt_object().get_setting("mf_shape_threshold"), distance=int(sweep_window_length / 2))
         amplitude_peaks, _ = find_peaks(matched_filter_amplitude, height=self.get_pmt_object().get_setting("mf_amp_threshold"), distance=int(sweep_window_length / 2))
         if len(shape_peaks) > 0:
+            print("why am i here")
             self.set_pmt_apulse_trigger(True)
             self.set_pmt_pulse_times(shape_peaks)
 
