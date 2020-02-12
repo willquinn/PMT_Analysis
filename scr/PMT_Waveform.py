@@ -206,6 +206,7 @@ class PMT_Waveform:
         pass
 
     def pmt_pulse_sweep(self):
+        print("sweeping")
         sweep_start = self.get_pmt_object().get_sweep_range()[0]
         sweep_end = self.get_pmt_object().get_sweep_range()[1]
         sweep_window_length = self.pmt_object.get_template_pmt_pulse().size
