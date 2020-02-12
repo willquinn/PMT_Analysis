@@ -153,15 +153,17 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array, waveform_o
 
                 if pmt_waveform.get_pmt_apulse_trigger():
                     print("pre_pulse")
-                    # pmt_waveform.save_pmt_waveform_histogram(waveform_root_file)
+                    pmt_waveform.save_pmt_waveform_histogram(waveform_output_file)
                     temp_hist = ROOT.TH1I(pmt_waveform.get_pmt_trace_id(),
                                           pmt_waveform.get_pmt_trace_id(),
                                           pmt_waveform.get_pmt_waveform_length(),
                                           0,
                                           pmt_waveform.get_pmt_waveform_length())
+
                     for i_value in range(pmt_waveform.get_pmt_waveform_length()):
                         temp_hist.SetBinContent(i_value + 1, pmt_waveform.get_pmt_waveform()[i_value])
-                    waveform_output_file
+
+                    waveform_output_file.cd()
                     temp_hist.Write()
                     del temp_hist
 
@@ -171,8 +173,6 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array, waveform_o
 
         line_number_int += 1
     pmt_data_file.close()
-
-    #pmt_array.get_pmt_object_number(0).get_histogram("baseline_h").Draw()
 
 
 def read_filenames(input_file_name: str):

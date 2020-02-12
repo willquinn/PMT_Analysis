@@ -35,7 +35,7 @@ def main():
 
     data_path = get_data_path(data_file_names)
 
-    waveform_output_root_file = ROOT.TFile("waveforms.root", "RECREATE")
+    waveform_output_root_file = ROOT.TFile("waveforms"+run_number+".root", "RECREATE")
 
     temp_start = TIME.time()
     for index, data_file_name in enumerate(list_of_data_file_names):
@@ -95,7 +95,7 @@ def main():
             hist_2D_shapes_SD.Fill(i_col, i_row, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetStdDev())
             hist_2D_mapping.Fill(i_col, i_row, pmt_array.get_pmt_object_position([i_row, i_col]).get_event_number())
 
-    hist_2D_root_file = ROOT.TFile("2D_shape_hist.root", "RECREATE")
+    hist_2D_root_file = ROOT.TFile("2D_shape_hist_"+run_number+"_.root", "RECREATE")
     hist_2D_root_file.cd()
     hist_2D_shapes.Write()
     hist_2D_shapes_SD.Write()

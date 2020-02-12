@@ -86,6 +86,7 @@ class PMT_Waveform:
                     self.set_pmt_pulse_mf_shape(inner_product/self.get_pmt_object().get_normalisation_factor(pmt_pulse))
 
                     if self.get_pmt_object().get_sweep_bool():
+                        print(self.get_pmt_object().get_sweep_bool())
                         self.pmt_pulse_sweep()
 
         self.update_results_dict()
