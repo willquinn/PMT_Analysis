@@ -77,14 +77,23 @@ def main():
                                   0,
                                   pmt_array.get_pmt_topology()[1])
 
+    hist_2D_mapping = ROOT.TH2F("PMT_Event_Mapping",
+                                "PMT_Event_Mapping",
+                                pmt_array.get_pmt_topology()[0],
+                                0,
+                                pmt_array.get_pmt_topology()[0],
+                                pmt_array.get_pmt_topology()[1],
+                                0,
+                                pmt_array.get_pmt_topology()[1])
+
     hist_2D_shapes_SD.SetXTitle("Column OM")
     hist_2D_shapes_SD.SetYTitle("Row OM")
 
     for i_row in range(pmt_array.get_pmt_topology()[0]):
         for i_col in range(pmt_array.get_pmt_topology()[1]):
-            print(i_col + i_row*pmt_array.get_pmt_topology()[1])
-            hist_2D_shapes.Fill(i_row, i_col, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetMean())
-            hist_2D_shapes_SD.Fill(i_row, i_col, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetStdDev())
+            hist_2D_shapes.Fill(i_col, i_row, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetMean())
+            hist_2D_shapes_SD.Fill(i_col, i_row, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetStdDev())
+            hist_2D_mapping.Fill(i_col, i_row, pmt_array.get_pmt_object_position([i_row, i_col]).get_event_number())
 
     hist_2D_root_file = ROOT.TFile("2D_shape_hist.root", "RECREATE")
     hist_2D_root_file.cd()
