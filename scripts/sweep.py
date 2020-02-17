@@ -86,14 +86,25 @@ def main():
                                 0,
                                 pmt_array.get_pmt_topology()[1])
 
+    hist_2D_num_waveforms = ROOT.TH2F("PMT_Pre_Pulse_Rate",
+                                      "PMT_Pre_Pulse_Rate",
+                                      pmt_array.get_pmt_topology()[0],
+                                      0,
+                                      pmt_array.get_pmt_topology()[0],
+                                      pmt_array.get_pmt_topology()[1],
+                                      0,
+                                      pmt_array.get_pmt_topology()[1])
+
     hist_2D_shapes_SD.SetXTitle("Column OM")
     hist_2D_shapes_SD.SetYTitle("Row OM")
 
     for i_row in range(pmt_array.get_pmt_topology()[0]):
         for i_col in range(pmt_array.get_pmt_topology()[1]):
+            print("Row: ", i_row, "Col: ", i_col, "Event Number: ", pmt_array.get_pmt_object_position([i_row, i_col]).get_event_number())
             hist_2D_shapes.Fill(i_col, i_row, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetMean())
             hist_2D_shapes_SD.Fill(i_col, i_row, pmt_array.get_pmt_object_position([i_row, i_col]).get_pmt_pulse_mf_shape_hist().GetStdDev())
             hist_2D_mapping.Fill(i_col, i_row, pmt_array.get_pmt_object_position([i_row, i_col]).get_event_number())
+            #hist_2D_num_waveforms.Fill
 
     hist_2D_root_file = ROOT.TFile("2D_shape_hist_"+run_number+"_.root", "RECREATE")
     hist_2D_root_file.cd()

@@ -148,6 +148,7 @@ def process_crd_file(input_data_file_name: str, pmt_array: PMT_Array, waveform_o
                     print("MF Shape: ", pmt_waveform.get_pmt_pulse_mf_shape())
                     print("Amplitude: ", pmt_waveform.get_pmt_pulse_peak_amplitude())
                     print("")'''
+                    #print("Slot: ", pmt_channel_number, "Channel: ", pmt_channel_number)
                     pmt_waveform.fill_pmt_hists()
 
                 if pmt_waveform.get_pmt_apulse_trigger():
