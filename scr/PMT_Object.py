@@ -20,9 +20,8 @@ class PMT_Object:
         self.sweep_bool = False
         self.template_bool = False
 
-
         # Default settings
-        charge_cut = 6  # pC
+        charge_cut = 6
         charge_range = [0, 100]
         nbins = 100
         amp_range = [0, 100]
@@ -31,27 +30,27 @@ class PMT_Object:
         sweep_range = [0, 500]
         pulse_time_threshold = 100
         apulse_region = 500
-        resistance = 50 # Ohms
+        resistance = 50
         mf_shape_threshold = 0.9
         mf_amp_threshold = 25
         baseline = 1000
         waveform_length = 8000
 
         self.setting_dict = {
-            "charge_cut"            : charge_cut,
-            "charge_range"          : charge_range,
-            "nbins"                 : nbins,
-            "amp_range"             : amp_range,
-            "mf_shape_range"        : mf_shape_range,
-            "mf_amp_range"          : mf_amp_range,
-            "sweep_range"           : sweep_range,
-            "pulse_time_threshold"  : pulse_time_threshold,
-            "apulse_region"         : apulse_region,
-            "resistance"            : resistance,
-            "mf_shape_threshold"    : mf_shape_threshold,
-            "mf_amp_threshold"      : mf_amp_threshold,
-            "waveform_length"       : waveform_length,
-            "baseline"              : baseline
+            "charge_cut": charge_cut,
+            "charge_range": charge_range,
+            "nbins": nbins,
+            "amp_range": amp_range,
+            "mf_shape_range": mf_shape_range,
+            "mf_amp_range": mf_amp_range,
+            "sweep_range": sweep_range,
+            "pulse_time_threshold": pulse_time_threshold,
+            "apulse_region": apulse_region,
+            "resistance": resistance,
+            "mf_shape_threshold": mf_shape_threshold,
+            "mf_amp_threshold": mf_amp_threshold,
+            "waveform_length": waveform_length,
+            "baseline": baseline
         }
 
         self.template_pmt_pulse = np.array([], dtype='float')
@@ -66,9 +65,8 @@ class PMT_Object:
                                      "pulse_mf_amplitude_p_amplitude",
                                      "pulse_peak_time_hist",
                                      "pulse_times_hist",
-                                     "baseline_hist"
-                                     ]
-
+                                     "baseline_hist"]
+        self.histogram_dict = {}
 
     def set_up_histograms(self):
         pmt_pulse_charge_hist = ROOT.TH1F(self.get_pmt_id() + "_pulse_charge_spectrum",
@@ -166,7 +164,8 @@ class PMT_Object:
     def set_template_bool(self,  new_bool: bool):
         self.template_bool = new_bool
 
-    def get_normalisation_factor(self, vector: list):
+    @staticmethod
+    def get_normalisation_factor(vector: list):
         norm = 0.0
         for i in range(len(vector)):
             norm += vector[i] * vector[i]
@@ -263,7 +262,7 @@ class PMT_Object:
     def set_mf_shape_range(self, new_mf_shape_range: list):
         assert len(new_mf_shape_range) == 2
         assert new_mf_shape_range[1] > new_mf_shape_range[0]
-        self.set_setting("mf_shape_range")
+        self.set_setting("mf_shape_range", new_mf_shape_range)
 
     def get_mf_amp_range(self):
         return self.get_setting("mf_amp_range")
@@ -321,7 +320,6 @@ class PMT_Object:
         return self.get_histogram("pulse_charge_hist")
 
     def fill_pmt_pulse_charge_hist(self, value: float):
-        #print(value)
         self.get_histogram("pulse_charge_hist").Fill(value)
 
     def get_pmt_pulse_amplitude_hist(self):
@@ -387,7 +385,6 @@ class PMT_Object:
 
     def fill_pmt_hists(self, results: dict):
 
-        #print(results)
         pulse_charge: float = results["pulse_charge"]
         pulse_amplitude: float = results["pulse_amplitude"]
         apulse_charge: float = results["apulse_charge"]
@@ -423,7 +420,8 @@ class PMT_Object:
         for hist in self.get_histogram_dict().keys():
             self.get_histogram_dict()[hist].Write()
 
-    def save_histogram(self, root_file: ROOT.TFile, hist, write_function: str):
+    @staticmethod
+    def save_histogram(root_file: ROOT.TFile, hist, write_function: str):
         if write_function in ['RECREATE', "CREATE", "UPDATE"]:
             pass
         else:
