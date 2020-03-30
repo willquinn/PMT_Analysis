@@ -54,7 +54,7 @@ class PMT_Waveform:
             # TODO: move this to after cuts. Deal with all cuts here
 
             # Store the baseline
-            self.set_pmt_baseline(np.average(self.pmt_waveform[0:self.pmt_pulse_peak_position - 100]))
+            self.set_pmt_baseline(np.average(self.pmt_waveform[0:self.get_pmt_object().get_setting("trigger_point")]))
 
             # Store the area of the pulse
             # TODO: make this univeral to any size of peak

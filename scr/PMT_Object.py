@@ -20,8 +20,9 @@ class PMT_Object:
         self.sweep_bool = False
         self.template_bool = False
 
+
         # Default settings
-        charge_cut = 6
+        charge_cut = 6  # pC
         charge_range = [0, 100]
         nbins = 100
         amp_range = [0, 100]
@@ -30,27 +31,29 @@ class PMT_Object:
         sweep_range = [0, 500]
         pulse_time_threshold = 100
         apulse_region = 500
-        resistance = 50
+        resistance = 50 # Ohms
         mf_shape_threshold = 0.9
         mf_amp_threshold = 25
         baseline = 1000
         waveform_length = 8000
+        trigger_point = 100
 
         self.setting_dict = {
-            "charge_cut": charge_cut,
-            "charge_range": charge_range,
-            "nbins": nbins,
-            "amp_range": amp_range,
-            "mf_shape_range": mf_shape_range,
-            "mf_amp_range": mf_amp_range,
-            "sweep_range": sweep_range,
-            "pulse_time_threshold": pulse_time_threshold,
-            "apulse_region": apulse_region,
-            "resistance": resistance,
-            "mf_shape_threshold": mf_shape_threshold,
-            "mf_amp_threshold": mf_amp_threshold,
-            "waveform_length": waveform_length,
-            "baseline": baseline
+            "charge_cut"            : charge_cut,
+            "charge_range"          : charge_range,
+            "nbins"                 : nbins,
+            "amp_range"             : amp_range,
+            "mf_shape_range"        : mf_shape_range,
+            "mf_amp_range"          : mf_amp_range,
+            "sweep_range"           : sweep_range,
+            "pulse_time_threshold"  : pulse_time_threshold,
+            "apulse_region"         : apulse_region,
+            "resistance"            : resistance,
+            "mf_shape_threshold"    : mf_shape_threshold,
+            "mf_amp_threshold"      : mf_amp_threshold,
+            "waveform_length"       : waveform_length,
+            "baseline"              : baseline,
+            "trigger_point"         : trigger_point
         }
 
         self.template_pmt_pulse = np.array([], dtype='float')
@@ -65,8 +68,9 @@ class PMT_Object:
                                      "pulse_mf_amplitude_p_amplitude",
                                      "pulse_peak_time_hist",
                                      "pulse_times_hist",
-                                     "baseline_hist"]
-        self.histogram_dict = {}
+                                     "baseline_hist"
+                                     ]
+
 
     def set_up_histograms(self):
         pmt_pulse_charge_hist = ROOT.TH1F(self.get_pmt_id() + "_pulse_charge_spectrum",
@@ -164,8 +168,7 @@ class PMT_Object:
     def set_template_bool(self,  new_bool: bool):
         self.template_bool = new_bool
 
-    @staticmethod
-    def get_normalisation_factor(vector: list):
+    def get_normalisation_factor(self, vector: list):
         norm = 0.0
         for i in range(len(vector)):
             norm += vector[i] * vector[i]
@@ -189,6 +192,12 @@ class PMT_Object:
 
     def set_resistance(self, new_resistance: float):
         self.set_setting("resistance", new_resistance)
+
+    def get_trigger_point(self):
+        return self.get_setting("trigger_point")
+
+    def set_trigger_point(self, new_trigger_point: int):
+        self.set_setting("trigger_point", new_trigger_point)
 
     def get_waveform_length(self):
         return self.get_setting("waveform_length")
@@ -320,6 +329,7 @@ class PMT_Object:
         return self.get_histogram("pulse_charge_hist")
 
     def fill_pmt_pulse_charge_hist(self, value: float):
+        #print(value)
         self.get_histogram("pulse_charge_hist").Fill(value)
 
     def get_pmt_pulse_amplitude_hist(self):
@@ -385,6 +395,7 @@ class PMT_Object:
 
     def fill_pmt_hists(self, results: dict):
 
+        #print(results)
         pulse_charge: float = results["pulse_charge"]
         pulse_amplitude: float = results["pulse_amplitude"]
         apulse_charge: float = results["apulse_charge"]
@@ -420,8 +431,7 @@ class PMT_Object:
         for hist in self.get_histogram_dict().keys():
             self.get_histogram_dict()[hist].Write()
 
-    @staticmethod
-    def save_histogram(root_file: ROOT.TFile, hist, write_function: str):
+    def save_histogram(self, root_file: ROOT.TFile, hist, write_function: str):
         if write_function in ['RECREATE', "CREATE", "UPDATE"]:
             pass
         else:
