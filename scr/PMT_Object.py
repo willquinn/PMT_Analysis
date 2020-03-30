@@ -36,6 +36,7 @@ class PMT_Object:
         mf_amp_threshold = 25
         baseline = 1000
         waveform_length = 8000
+        trigger_point = 100
 
         self.setting_dict = {
             "charge_cut"            : charge_cut,
@@ -51,7 +52,8 @@ class PMT_Object:
             "mf_shape_threshold"    : mf_shape_threshold,
             "mf_amp_threshold"      : mf_amp_threshold,
             "waveform_length"       : waveform_length,
-            "baseline"              : baseline
+            "baseline"              : baseline,
+            "trigger_point"         : trigger_point
         }
 
         self.template_pmt_pulse = np.array([], dtype='float')
@@ -191,6 +193,12 @@ class PMT_Object:
     def set_resistance(self, new_resistance: float):
         self.set_setting("resistance", new_resistance)
 
+    def get_trigger_point(self):
+        return self.get_setting("trigger_point")
+
+    def set_trigger_point(self, new_trigger_point: int):
+        self.set_setting("trigger_point", new_trigger_point)
+
     def get_waveform_length(self):
         return self.get_setting("waveform_length")
 
@@ -263,7 +271,7 @@ class PMT_Object:
     def set_mf_shape_range(self, new_mf_shape_range: list):
         assert len(new_mf_shape_range) == 2
         assert new_mf_shape_range[1] > new_mf_shape_range[0]
-        self.set_setting("mf_shape_range")
+        self.set_setting("mf_shape_range", new_mf_shape_range)
 
     def get_mf_amp_range(self):
         return self.get_setting("mf_amp_range")

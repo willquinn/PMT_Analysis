@@ -41,3 +41,5 @@ Define the matched filter amplitude cut off
 
 # waveform_length : 7000
 Define the known waveform length
+
+# trigger_point : 400

@@ -45,3 +45,5 @@ Define the known waveform length
 
 # baseline : 2045
 Define the known baseline
+
+# trigger_point : 100

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def parse_arguments():
     import argparse
     parser = argparse.ArgumentParser(description="Input file names")
@@ -30,12 +31,12 @@ def io_parse_arguments():
     import argparse
     parser = argparse.ArgumentParser(description="Input file names")
     parser.add_argument('-i', required=True, type=str, help='Input data file path')
+    parser.add_argument('-o', required=False, type=str, help='Output data file path')
     args = parser.parse_args()
     return args
 
 
 def get_normalisation_factor(vector: list):
-    import numpy as np
     norm = 0.0
     for i in range(len(vector)):
         norm += vector[i] * vector[i]
@@ -439,3 +440,19 @@ def process_date(date_array: np.array):
     output_array = np.array(output_list)
     assert output_array.size == date_array.size
     return output_array
+
+
+def chi2(y_obs, y_err, y_exp, n_par):
+    chi2 = 0
+    ndof = len(y_obs) - n_par - 1
+    for i in range(len(y_exp)):
+        chi2 += ((y_exp[i] - y_obs[i])/y_err[i])**2
+    chi2 = chi2/ndof
+    return chi2
+
+
+def gaussian(x, mean, sigma, amplitude, height):
+    y = []
+    for i in range(len(x)):
+        y.append(amplitude*np.exp((-(x[i] - mean)**2)/(2*sigma**2)) + height)
+    return y
