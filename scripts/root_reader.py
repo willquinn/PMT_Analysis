@@ -108,13 +108,25 @@ def main():
 
     if sweep_bool == "True":
         pmt_array.set_sweep_bool(True)
-        pmt_array.set_pmt_templates("/Users/willquinn/Documents/PhD/PMT_Permeation_Project/data/21.06.19_A1400_B1400_t1130_templates.root", "Template_Waveform_Channel0_A1400_B1400_t1130")
+        pmt_array.set_pmt_templates(["/Users/willquinn/Documents/PhD/PMT_Permeation_Project/data/21.06.19_A1400_B1400_t1130_templates.root"], ["Template_Waveform_Channel0_A1400_B1400_t1130"])
 
     i = 0
     for event in tree:
-        pmt_waveform = PMT_Waveform(event.waveform, pmt_object)
+        OM_ID = event.OM_ID
+        event_num = event.event_num
+        pulse_time = event.pulse_time
+        pulse_amplitude = event.pulse_amplitude
+        pulse_charge = event.pulse_charge
+        pulse_baseline = event.pulse_baseline
+        waveform = event.waveform
 
-        print(event.OM_ID, event.event_num, event.pulse_time, event.pulse_charge, event.pulse_amplitude, event.pulse_baseline)
+        pmt_waveform = PMT_Waveform(waveform, pmt_array.get_pmt_object_number(OM_ID))
+
+        if pmt_waveform.get_pulse_trigger():
+            pmt_waveform.fill_pmt_hists()
+
+        del pmt_waveform
+
         #charge.append(event.pulse_charge)
         #x.append(i)
         #i += 1

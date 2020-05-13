@@ -43,3 +43,7 @@ Define the matched filter amplitude cut off
 Define the known waveform length
 
 # trigger_point : 400
+
+# template_file_name : ch0 : /Users/willquinn/Documents/PhD/PMT_Permeation_Project/data/21.06.19_A1400_B1400_t1130_templates.root : Template_Waveform_Channel0_A1400_B1400_t1130
+
+# template_file_name : ch1 :
