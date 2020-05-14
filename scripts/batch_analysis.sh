@@ -25,7 +25,7 @@ source_code="/home/wquinn/pmt_analysis/PMT_Analysis/scripts/root_reader.py"
 ifile=0
 for file in $data_file_list;
 do
-  executable_plus_arguments="python3 $source_code --i $file --c $config_file"
+  executable_plus_arguments="python3 $source_code -i $file -c $config_file"
 
   interactive_command="$executable_plus_arguments >& $root_dir/batch_files/$script_log_dir/logs/batch_file_$ifile.log"
   echo $interactive_command
