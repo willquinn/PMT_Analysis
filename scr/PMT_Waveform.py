@@ -21,12 +21,17 @@ class PMT_Waveform:
 
         self.pmt_trace_id = self.pmt_object.get_data_id() + "_ch" + self.pmt_object.get_pmt_id() + "_tr" + str(self.pmt_object.get_event_number())
 
-        temp_list_1 = []
-        for i in range(len(pmt_waveform_list)):
-            if pmt_waveform_list[i] == '' or pmt_waveform_list[i] == '\n':
-                pass
-            else:
-                temp_list_1.append(pmt_waveform_list[i].strip())
+        # If the input waveform list is of strings we need to check each element
+        if type(pmt_waveform_list[0]) == str:
+            temp_list_1 = []
+            for i in range(len(pmt_waveform_list)):
+                if pmt_waveform_list[i] == '' or pmt_waveform_list[i] == '\n':
+                    pass
+                else:
+                    temp_list_1.append(pmt_waveform_list[i].strip())
+        # If not a string we don't need to worry
+        else:
+            temp_list_1 = pmt_waveform_list
 
         # Store waveform
         self.pmt_waveform = np.array(temp_list_1, dtype='float')
