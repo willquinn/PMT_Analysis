@@ -14,7 +14,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 # import custom made classes
-from functions.other_functions import parse_arguments, get_date_time, get_voltage, fit, chi2
+from functions.other_functions import sncd_parse_arguments, get_date_time, get_voltage, fit, chi2
 from scr.PMT_Array import PMT_Array
 from scr.PMT_Waveform import PMT_Waveform
 
@@ -23,7 +23,7 @@ def main():
 
     # Handle the input arguments:
     ##############################
-    args = parse_arguments()
+    args = sncd_parse_arguments()
     input_data_file_name = args.i
     config_file_name = args.c
     output_file_name = args.o
