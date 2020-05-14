@@ -138,7 +138,7 @@ def main():
 
             chi_2 = chi2(y_array, y_err, fit(x_array, *popt), 3)
             print(">>> The reduced chi2 is: ", chi_2)
-            string += '{}'.format(chi_2)
+            string += '{}\n'.format(chi_2)
 
             output_file.write(string)
 
