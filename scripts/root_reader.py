@@ -45,7 +45,7 @@ def main():
         raise Exception("Error opening data file {}".format(input_data_file_name))
 
     file = ROOT.TFile(input_data_file_name, "READ")
-    output_file = open(output_file_name)
+    output_file = open(output_file_name, "a")
     file.cd()
 
     tree = file.T
