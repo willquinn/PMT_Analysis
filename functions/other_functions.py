@@ -62,6 +62,16 @@ def get_run_number(input_data_path: str):
     return str(vi.strip())
 
 
+def get_voltage(input_data_path: str):
+    i = input_data_path.split("/")
+    ii = i[-1]
+    iii = ii.split("_")
+    iv = iii[0]
+    v = iv.split("A")
+    vi = v[1]
+    return str(vi.strip())
+
+
 def fit_bismuth_function_from_file(root_file_name: str):
     import ROOT
     root_file = ROOT.TFile(root_file_name, "UPDATE")
@@ -1040,8 +1050,65 @@ def gaussian(x, mean, sigma, amplitude, height):
         y.append(amplitude*np.exp((-(x[i] - mean)**2)/(2*sigma**2)) + height)
     return y
 
+
 def linear(x, m, c):
     y = []
     for i in range(len(x)):
         y.append(m*x[i] + c)
     return y
+
+
+def fit_0(x, mu, sig, a):
+    y = []
+    for i in range(len(x)):
+        calc =  a * (
+                ( 7.08*gaus(x[i], mu, sig ) +
+                ( 1.84*gaus(x[i], mu*(1 + 72.144/975.651), sig*1.036) ) +
+                ( 0.44*gaus(x[i], mu*(1 + 84.154/975.651), sig*1.042) ) ) +
+                0.464 *
+                ( np.exp( 0.254*x[i] )/( 1 + np.exp( ( x[i] - 28.43 )/2.14) ) )
+        )
+        y.append(calc)
+    return y
+
+
+def fit_1(x, mu, sig, a):
+    y = []
+    for i in range(len(x)):
+        calc = a * (
+                (7.08 * gaus(x[i], mu, sig) +
+                 (1.84 * gaus(x[i], mu * (1 + 72.144 / 975.651), sig * 1.036)) +
+                 (0.44 * gaus(x[i], mu * (1 + 84.154 / 975.651), sig * 1.042))) +
+                0.515 *
+                (np.exp(0.2199 * x[i]) / (1 + np.exp((x[i] - 31.68) / 2.48)))
+        )
+        y.append(calc)
+    return y
+
+
+def fit(x, mu, sig, a, b, c, d, e):
+    y = []
+    for i in range(len(x)):
+        calc = a * (
+                (7.08 * gaus(x[i], mu, sig) +
+                 (1.84 * gaus(x[i], mu * (1 + 72.144 / 975.651), sig * 1.036)) +
+                 (0.44 * gaus(x[i], mu * (1 + 84.154 / 975.651), sig * 1.042))) +
+                b *
+                (np.exp(c * x[i]) / (1 + np.exp((x[i] - d) / e)))
+        )
+        y.append(calc)
+    return y
+
+
+def chi2(y_obs, y_err, y_exp, n_par):
+    chi2 = 0
+    ndof = len(y_obs) - n_par - 1
+    for i in range(len(y_exp)):
+        chi2 += ((y_exp[i] - y_obs[i])/y_err[i])**2
+    chi2 = chi2/ndof
+    return chi2
+
+
+def gaus(x, mu, sig):
+    return np.exp(-( ( ( x - mu )/sig )**2 )/2)/( np.sqrt( 2*np.pi )*sig )
+

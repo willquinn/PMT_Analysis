@@ -5,64 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ROOT
 from scipy.optimize import curve_fit
-from functions.other_functions import parse_arguments, get_date_time
+from functions.other_functions import parse_arguments, get_date_time, get_voltage
 from PMT_Array import PMT_Array
 from PMT_Waveform import PMT_Waveform
-
-
-def chi2(y_obs, y_err, y_exp, n_par):
-    chi2 = 0
-    ndof = len(y_obs) - n_par - 1
-    for i in range(len(y_exp)):
-        chi2 += ((y_exp[i] - y_obs[i])/y_err[i])**2
-    chi2 = chi2/ndof
-    return chi2
-
-
-def gaus(x, mu, sig):
-    return np.exp(-( ( ( x - mu )/sig )**2 )/2)/( np.sqrt( 2*np.pi )*sig )
-
-
-def fit_0(x, mu, sig, a):
-    y = []
-    for i in range(len(x)):
-        calc =  a * (
-                ( 7.08*gaus(x[i], mu, sig ) +
-                ( 1.84*gaus(x[i], mu*(1 + 72.144/975.651), sig*1.036) ) +
-                ( 0.44*gaus(x[i], mu*(1 + 84.154/975.651), sig*1.042) ) ) +
-                0.464 *
-                ( np.exp( 0.254*x[i] )/( 1 + np.exp( ( x[i] - 28.43 )/2.14) ) )
-        )
-        y.append(calc)
-    return y
-
-
-def fit_1(x, mu, sig, a):
-    y = []
-    for i in range(len(x)):
-        calc = a * (
-                (7.08 * gaus(x[i], mu, sig) +
-                 (1.84 * gaus(x[i], mu * (1 + 72.144 / 975.651), sig * 1.036)) +
-                 (0.44 * gaus(x[i], mu * (1 + 84.154 / 975.651), sig * 1.042))) +
-                0.515 *
-                (np.exp(0.2199 * x[i]) / (1 + np.exp((x[i] - 31.68) / 2.48)))
-        )
-        y.append(calc)
-    return y
-
-
-def fit(x, mu, sig, a, b, c, d, e):
-    y = []
-    for i in range(len(x)):
-        calc = a * (
-                (7.08 * gaus(x[i], mu, sig) +
-                 (1.84 * gaus(x[i], mu * (1 + 72.144 / 975.651), sig * 1.036)) +
-                 (0.44 * gaus(x[i], mu * (1 + 84.154 / 975.651), sig * 1.042))) +
-                b *
-                (np.exp(c * x[i]) / (1 + np.exp((x[i] - d) / e)))
-        )
-        y.append(calc)
-    return y
 
 
 def main():
@@ -80,6 +25,7 @@ def main():
     # Do some string manipulation to get the date and time from the file name
     #################################################
     date, time = get_date_time(input_data_file_name)
+    voltage = int(get_voltage(input_data_file_name))
     #################################################
 
     # Check to see if the data file exists
@@ -108,7 +54,14 @@ def main():
 
     if sweep_bool == "True":
         pmt_array.set_sweep_bool(True)
-        pmt_array.set_pmt_templates(["/Users/willquinn/Documents/PhD/PMT_Permeation_Project/data/21.06.19_A1400_B1400_t1130_templates.root"], ["Template_Waveform_Channel0_A1400_B1400_t1130"])
+        if voltage == 1000:
+            pmt_array.set_pmt_templates(
+                ["/unix/nemo4/PMT_He_Study_nemo4/Templates/new/191008_A1000_B1000_templates.root"],
+                ["A1000_B1000_Ch0_Template", "A1000_B1000_Ch1_Template"])
+        elif voltage == 1400:
+            pmt_array.set_pmt_templates(
+                ["/unix/nemo4/PMT_He_Study_nemo4/Templates/new/190621_A1400_B1400_templates.root"],
+                ["A1400_B1400_Ch0_Template", "A1400_B1400_Ch1_Template"])
 
     i = 0
     for event in tree:
