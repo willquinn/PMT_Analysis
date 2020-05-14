@@ -2,21 +2,31 @@ import sys
 
 sys.path.insert(1, '..')
 
+# import ROOT and bash commands
+import ROOT
+import os
+
+# import python plotting and numpy modules
 import matplotlib.pyplot as plt
 import numpy as np
-import ROOT
+
+# import stats module
 from scipy.optimize import curve_fit
+
+# import custom made classes
 from functions.other_functions import parse_arguments, get_date_time, get_voltage, fit, chi2
 from scr.PMT_Array import PMT_Array
 from scr.PMT_Waveform import PMT_Waveform
 
 
 def main():
+
     # Handle the input arguments:
     ##############################
     args = parse_arguments()
     input_data_file_name = args.i
     config_file_name = args.c
+    output_file_name = args.o
     sweep_bool = args.sweep
     ##############################
 
@@ -35,6 +45,7 @@ def main():
         raise Exception("Error opening data file {}".format(input_data_file_name))
 
     file = ROOT.TFile(input_data_file_name, "READ")
+    output_file = open(output_file_name)
     file.cd()
 
     tree = file.T
@@ -117,13 +128,19 @@ def main():
 
             popt, pcov = curve_fit(fit, x_array, y_array, p0=p_guess, bounds=p_bounds, maxfev=5000)
 
-            print("The optimised fitted parameters are: ", popt)
-            print("The covariance matrix is: ", pcov)
+            string = ''
+
+            print("\n>>> The optimised fitted parameters are: ", popt)
+            print(">>> The covariance matrix is: ", pcov)
             for i in range(len(popt)):
-                print("Error on parameter {}: {} is {}".format(i, popt[i], np.sqrt(pcov[i][i])))
+                string += '{},{},'.format(popt[i], np.sqrt(pcov[i][i]))
+                print(">>> Error on parameter {}: {} is {}".format(i, popt[i], np.sqrt(pcov[i][i])))
 
             chi_2 = chi2(y_array, y_err, fit(x_array, *popt), 3)
-            print("The reduced chi2 is: ", chi_2)
+            print(">>> The reduced chi2 is: ", chi_2)
+            string += '{}'.format(chi_2)
+
+            output_file.write(string)
 
             x = np.linspace(np.min(x_array), np.max(x_array), 10000)
 
@@ -133,10 +150,12 @@ def main():
             plt.plot(x, fit(x, *popt))
             plt.text(38, 1000, "$\chi^2$ = {}".format(round(chi_2, 2)))
             plt.grid(True)
+            plt.title(pmt_array.get_pmt_object_number(i_pmt).get_pmt_id() + '_Charge_Spectrum')
             plt.ylabel("Counts")
             plt.xlabel("Charge /pC")
+            plt.xlim(est_mu - 25, est_mu + 14)
             plt.yscale('log')
-            plt.show()
+            plt.savefig('/home/wquinn/pmt_analysis/plots/' + pmt_array.get_pmt_object_number(i_pmt).get_pmt_id() + '_Charge_Spectrum.png')
         else:
             pass
 
