@@ -23,8 +23,6 @@ source_code="/home/wquinn/pmt_analysis/PMT_Analysis/scripts/root_reader.py"
 ifile=0
 for file in $data_file_list;
 do
-  executable_plus_arguments="python3 $source_code -i $file -c $config_file -o /home/wquinn/pmt_analysis/output.txt"
-
-  interactive_command="$executable_plus_arguments &"
-  $interactive_command
+  executable_plus_arguments="python3 $source_code -i $file -c $config_file -o /home/wquinn/pmt_analysis/output.txt &"
+  $executable_plus_arguments
 done
