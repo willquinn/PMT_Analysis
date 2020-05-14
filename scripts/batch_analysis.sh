@@ -28,5 +28,6 @@ do
   executable_plus_arguments="python3 $source_code --i $file --c $config_file"
 
   interactive_command="$executable_plus_arguments >& $root_dir/batch_files/$script_log_dir/logs/batch_file_$ifile.log"
+  echo $interactive_command
   $interactive_command
 done
