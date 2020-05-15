@@ -128,7 +128,7 @@ def main():
 
             popt, pcov = curve_fit(fit, x_array, y_array, p0=p_guess, bounds=p_bounds, maxfev=5000)
 
-            string = ''
+            string = '{},'.format(i_pmt)
 
             print("\n>>> The optimised fitted parameters are: ", popt)
             print(">>> The covariance matrix is: ", pcov)
