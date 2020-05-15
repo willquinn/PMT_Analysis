@@ -44,11 +44,13 @@ def get_normalisation_factor(vector: list):
 
 
 def get_date_time(input_data_file_name: str):
+    # 200221-A1400_B1400_t1006.root
     temp1 = input_data_file_name.split("/")
-    date = temp1[-2]
-    temp2 = temp1[-1].split("_")
-    temp3 = temp2[2].split("t")
-    time = temp3[1]
+    temp2 = temp1[-1].split(".")
+    # 200221-A1400_B1400_t1006
+    date = temp2[0].split("-")[0]
+    temp3 = temp2[0].split("_")
+    time = temp3[2].split("t")[1]
     return date, time
 
 
