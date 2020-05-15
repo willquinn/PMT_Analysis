@@ -163,4 +163,5 @@ def main():
 
 
 if __name__ == '__main__':
+    os.system("source /home/wquinn/pmt_analysis/myenv/bin/activate")
     main()

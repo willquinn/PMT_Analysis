@@ -40,28 +40,64 @@ def main():
     rise_time_hists = []
     fall_time_hists = []
     ratio_hists = []
+    charge_hists = []
+
+    ratio_mean_2D = ROOT.TH2F("ratio_mean_run_" + run_number, "ratio_mean_run_" + run_number,
+                         20,0,20,13,0,13)
+    ratio_stdev_2D = ROOT.TH2F("ratio_stdev_run_" + run_number, "ratio_stdev_run_" + run_number,
+                         20, 0, 20, 13, 0, 13)
+    rise_mean_2D = ROOT.TH2F("rise_mean_run_" + run_number, "rise_mean_run_" + run_number,
+                              20, 0, 20, 13, 0, 13)
+    rise_stdev_2D = ROOT.TH2F("rise_stdev_run_" + run_number, "rise_stdev_run_" + run_number,
+                               20, 0, 20, 13, 0, 13)
+    fall_mean_2D = ROOT.TH2F("fall_mean_run_" + run_number, "fall_mean_run_" + run_number,
+                              20, 0, 20, 13, 0, 13)
+    fall_stdev_2D = ROOT.TH2F("fall_stdev_run_" + run_number, "fall_stdev_run_" + run_number,
+                               20, 0, 20, 13, 0, 13)
     for i in range(260):
-        temp1 = ROOT.TH1F("rise_OM_ID: "+str(i), "rise_OM_ID: "+str(i),10000,0,10000)
-        temp2 = ROOT.TH1F("fall_OM_ID: " + str(i), "fall_OM_ID: " + str(i),10000,0,10000)
-        temp3 = ROOT.TH1F("ratio_OM_ID: " + str(i), "ratio_OM_ID: " + str(i),100,0,10)
-        temp4 = ROOT.TH1I("charge_OM_ID: "+ str(i),"charge_OM_ID: "+ str(i),20000,-10000,10000)
-        temp4 = ROOT.TH1I("amplitude_OM_ID: " + str(i), "charge_OM_ID: " + str(i), 2000, -2000, 0)
+        temp1 = ROOT.TH1F("rise_OM_ID: " + str(i), "rise_OM_ID: "+ str(i), 100, 1800, 3500)
+        temp2 = ROOT.TH1F("fall_OM_ID: " + str(i), "fall_OM_ID: " + str(i), 100, 1500, 1900)
+        temp3 = ROOT.TH1F("ratio_OM_ID: " + str(i), "ratio_OM_ID: " + str(i), 100, 0.5, 2)
+        temp4 = ROOT.TH1I("charge_OM_ID: " + str(i), "charge_OM_ID: " + str(i), 200, -100000, 0)
+        #temp5 = ROOT.TH1I("amplitude_OM_ID: " + str(i), "charge_OM_ID: " + str(i), 2000, -2000, 0)
         rise_time_hists.append(temp1)
         fall_time_hists.append(temp2)
         ratio_hists.append(temp3)
+        charge_hists.append(temp4)
 
     for event in tree:
-        print(event.event_num,event.OM_ID,event.row,event.column,event.amplitude,event.charge,event.baseline,event.rise_time,event.fall_time,event.peak_time)
-        rise_time_hists[event.column].Fill(event.rise_time)
-        fall_time_hists[event.column].Fill(event.fall_time)
-        ratio_hists[event.column].Fill(event.rise_time/event.fall_time)
+        if event.column == 19:
+            print("column 19")
+        #print(event.event_num,event.OM_ID,event.row,event.column,event.amplitude,event.charge,event.baseline,event.rise_time,event.fall_time,event.peak_time)
+        rise_time_hists[event.OM_ID].Fill(event.rise_time)
+        fall_time_hists[event.OM_ID].Fill(event.fall_time)
+        if event.fall_time == 0:
+            pass
+        else:
+            ratio_hists[event.OM_ID].Fill(event.rise_time/event.fall_time)
+        charge_hists[event.OM_ID].Fill(event.charge)
 
     output_file.cd()
 
     for i in range(260):
+        row = int(i/20)
+        column = i % 20
+        ratio_mean_2D.Fill(column, row, ratio_hists[i].GetMean())
+        ratio_stdev_2D.Fill(column, row, ratio_hists[i].GetStdDev())
+        rise_mean_2D.Fill(column, row, rise_time_hists[i].GetMean())
+        rise_stdev_2D.Fill(column, row, rise_time_hists[i].GetStdDev())
+        fall_mean_2D.Fill(column, row, fall_time_hists[i].GetMean())
+        fall_stdev_2D.Fill(column, row, fall_time_hists[i].GetStdDev())
         rise_time_hists[i].Write()
         fall_time_hists[i].Write()
         ratio_hists[i].Write()
+
+    ratio_mean_2D.Write()
+    ratio_stdev_2D.Write()
+    rise_mean_2D.Write()
+    rise_stdev_2D.Write()
+    fall_mean_2D.Write()
+    fall_stdev_2D.Write()
 
     output_file.Close()
     '''directory = file.GetDirectory("RTD calo histograms")
