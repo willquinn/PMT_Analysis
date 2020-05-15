@@ -36,9 +36,11 @@ do
   echo "echo 'Running batch_file_$ifile.sh ...' >> $root_dir/batch_files/$script_log_dir/logs/batch_file_$ifile.log" >> $root_dir/batch_files/$script_log_dir/scripts/batch_file_$ifile.sh
   echo "source /home/wquinn/pmt_analysis/myenv/bin/activate" >> $root_dir/batch_files/$script_log_dir/scripts/batch_file_$ifile.sh
   echo $executable_plus_arguments >> $root_dir/batch_files/$script_log_dir/scripts/batch_file_$ifile.sh
-  batch_command="qsub -q $queue $root_dir/batch_files/$script_log_dir/scripts/batch_file_$ifile.sh"
-  echo $batch_command
-  $batch_command
+  echo "deactivate" >> $root_dir/batch_files/$script_log_dir/scripts/batch_file_$ifile.sh
+  #batch_command="qsub -q $queue $root_dir/batch_files/$script_log_dir/scripts/batch_file_$ifile.sh"
+  #echo $batch_command
+  #$batch_command
+  source $root_dir/batch_files/$script_log_dir/scripts/batch_file_$ifile.sh
   echo ""
   let ifile=$ifile+1
 done
