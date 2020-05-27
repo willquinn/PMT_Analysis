@@ -91,6 +91,7 @@ def main():
         rise_time_hists[i].Write()
         fall_time_hists[i].Write()
         ratio_hists[i].Write()
+        charge_hists[i].Write()
 
     ratio_mean_2D.Write()
     ratio_stdev_2D.Write()

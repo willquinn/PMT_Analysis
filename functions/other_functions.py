@@ -603,6 +603,68 @@ def process_date(date_array: np.array):
             temp_date = 176
         if date == 200430:
             temp_date = 177
+        if date == 200501:
+            temp_date = 178
+        if date == 200502:
+            temp_date = 179
+        if date == 200503:
+            temp_date = 180
+        if date == 200504:
+            temp_date = 181
+        if date == 200505:
+            temp_date = 182
+        if date == 200506:
+            temp_date = 183
+        if date == 200507:
+            temp_date = 184
+        if date == 200508:
+            temp_date = 185
+        if date == 200509:
+            temp_date = 186
+        if date == 200510:
+            temp_date = 187
+        if date == 200511:
+            temp_date = 188
+        if date == 200512:
+            temp_date = 189
+        if date == 200513:
+            temp_date = 190
+        if date == 200514:
+            temp_date = 191
+        if date == 200515:
+            temp_date = 192
+        if date == 200516:
+            temp_date = 193
+        if date == 200517:
+            temp_date = 194
+        if date == 200518:
+            temp_date = 195
+        if date == 200519:
+            temp_date = 196
+        if date == 200520:
+            temp_date = 197
+        if date == 200521:
+            temp_date = 198
+        if date == 200522:
+            temp_date = 199
+        if date == 200523:
+            temp_date = 200
+        if date == 200524:
+            temp_date = 201
+        if date == 200525:
+            temp_date = 202
+        if date == 200526:
+            temp_date = 203
+        if date == 200527:
+            temp_date = 204
+        if date == 200528:
+            temp_date = 205
+        if date == 200529:
+            temp_date = 206
+        if date == 200530:
+            temp_date = 207
+        if date == 200531:
+            temp_date = 208
 
         output_list.append(temp_date)
 
@@ -1029,6 +1091,68 @@ def process_exposure(date_array: np.array):
             temp_date = 79/10 + 97/100
         if date == 200430:
             temp_date = 80/10 + 97/100
+        if date == 200501:
+            temp_date = 81/10 + 97/100
+        if date == 200502:
+            temp_date = 82/10 + 97/100
+        if date == 200503:
+            temp_date = 83/10 + 97/100
+        if date == 200504:
+            temp_date = 84/10 + 97/100
+        if date == 200505:
+            temp_date = 85/10 + 97/100
+        if date == 200506:
+            temp_date = 86/10 + 97/100
+        if date == 200507:
+            temp_date = 87/10 + 97/100
+        if date == 200508:
+            temp_date = 88/10 + 97/100
+        if date == 200509:
+            temp_date = 89/10 + 97/100
+        if date == 200510:
+            temp_date = 90/10 + 97/100
+        if date == 200511:
+            temp_date = 91/10 + 97/100
+        if date == 200512:
+            temp_date = 92/10 + 97/100
+        if date == 200513:
+            temp_date = 93/10 + 97/100
+        if date == 200514:
+            temp_date = 94/10 + 97/100
+        if date == 200515:
+            temp_date = 95/10 + 97/100
+        if date == 200516:
+            temp_date = 96/10 + 97/100
+        if date == 200517:
+            temp_date = 97/10 + 97/100
+        if date == 200518:
+            temp_date = 98/10 + 97/100
+        if date == 200519:
+            temp_date = 99/10 + 97/100
+        if date == 200520:
+            temp_date = 100/10 + 97/100
+        if date == 200521:
+            temp_date = 101/10 + 97/100
+        if date == 200522:
+            temp_date = 102/10 + 97/100
+        if date == 200523:
+            temp_date = 103/10 + 97/100
+        if date == 200524:
+            temp_date = 104/10 + 97/100
+        if date == 200525:
+            temp_date = 105/10 + 97/100
+        if date == 200526:
+            temp_date = 106/10 + 97/100
+        if date == 200527:
+            temp_date = 107/10 + 97/100
+        if date == 200528:
+            temp_date = 108/10 + 97/100
+        if date == 200529:
+            temp_date = 109/10 + 97/100
+        if date == 200530:
+            temp_date = 110/10 + 97/100
+        if date == 200531:
+            temp_date = 111/10 + 97/100
 
         output_list.append(temp_date)
 
