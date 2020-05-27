@@ -50,6 +50,8 @@ class PMT_Waveform:
         self.pmt_pulse_trigger = False
         self.pmt_apulse_trigger = False
         self.pmt_pulse_times = []
+        self.pmt_waveform_sweep_shape = []
+        self.pmt_waveform_sweep_amp = []
         self.pmt_waveform_reduced = np.array([], dtype='float')
 
         self.results_dict = {}
@@ -264,6 +266,8 @@ class PMT_Waveform:
             self.set_pmt_apulse_trigger(True)
             self.set_pmt_pulse_times(shape_peaks)
 
+        self.pmt_waveform_sweep_shape = matched_filter_shape
+        self.pmt_waveform_sweep_amp = matched_filter_amplitude
         self.update_results_dict()
 
         '''fig, ax1 = plt.subplots()
