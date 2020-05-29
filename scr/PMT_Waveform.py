@@ -262,9 +262,16 @@ class PMT_Waveform:
         # TODO: check if both thresholds have been breached
         shape_peaks, _ = find_peaks(matched_filter_shape, height=self.get_pmt_object().get_setting("mf_shape_threshold"), distance=int(sweep_window_length / 2))
         amplitude_peaks, _ = find_peaks(matched_filter_amplitude, height=self.get_pmt_object().get_setting("mf_amp_threshold"), distance=int(sweep_window_length / 2))
+
+        temp = []
         if len(shape_peaks) > 0:
+            for index, value in enumerate(shape_peaks):
+                if value in amplitude_peaks:
+                    temp.append(value)
+
+        if len(temp) > 0:
             self.set_pmt_apulse_trigger(True)
-            self.set_pmt_pulse_times(shape_peaks)
+            self.set_pmt_pulse_times(temp)
 
         self.pmt_waveform_sweep_shape = matched_filter_shape
         self.pmt_waveform_sweep_amp = matched_filter_amplitude
