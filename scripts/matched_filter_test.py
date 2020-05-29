@@ -53,7 +53,7 @@ def main():
     tree = file.T
     tree.Print()
 
-    num_events = 1000
+    num_events = 10000
 
     topology = [4, 1]
     pmt_array = PMT_Array(topology, date + "_" + time)
@@ -100,9 +100,6 @@ def main():
     random_array = [[[], []], [[], []]]
     x_best_array = [[], []]
 
-    #bar = progressbar.ProgressBar(maxval=tree.GetEntries(), widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
-    #bar.start()
-
     for event in tqdm.tqdm(tree):
         OM_ID = event.OM_ID
         waveform = np.array(event.waveform)
@@ -134,9 +131,13 @@ def main():
 
         pmt_waveform = PMT_Waveform(waveform, pmt_array.get_pmt_object_number(OM_ID))
         pmt_waveform_injected = PMT_Waveform(waveform - injected_data, pmt_array.get_pmt_object_number(OM_ID + 2))
-        '''plt.plot(waveform, 'b-')
-        plt.plot(waveform - injected_data, 'r-')
-        plt.show()'''
+        plt.plot(waveform - injected_data, 'r-', label="injected")
+        plt.plot(waveform, 'b-', label="raw data")
+        plt.xlabel("time /ns")
+        plt.ylabel("ADC unit /mV")
+        plt.legend(loc="lower right")
+        plt.grid(True)
+        plt.show()
         check = False
 
         if pmt_waveform.get_pmt_pulse_trigger():
@@ -179,6 +180,19 @@ def main():
             best_array[OM_ID][0].append(best_shape)
             best_array[OM_ID][1].append(best_amplitude)
 
+            '''fig, ax1 = plt.subplots()
+
+            color = 'tab:red'
+            ax1.set_xlabel('timestamp (ns)')
+            ax1.set_ylabel('shape', color=color)
+            ax1.plot(pmt_waveform.pmt_waveform_sweep_amp, color=color)
+            ax1.plot(pmt_waveform.get_pmt_pulse_times(), pmt_waveform.pmt_waveform_sweep_amp[pmt_waveform.get_pmt_pulse_times()], "x", color='tab:green')
+            ax1.tick_params(axis='y', labelcolor=color)
+            ax1.plot(np.zeros_like(pmt_waveform.pmt_waveform_sweep_shape), "--", color="gray")
+            plt.show(block=False)
+            plt.pause(0.5)
+            plt.close()'''
+
             enum[OM_ID] += 1
         iterator += 1
         if iterator == num_events:
@@ -197,7 +211,7 @@ def main():
         plt.ylabel("shape index")
         plt.title("Channel: {} events: {}".format(i, num_events))
         plt.grid(True)
-        plt.legend()
+        plt.legend(loc="lower right")
         plt.axhline(y=shape_cut, color='k', linestyle='-')
         plt.savefig("/Users/willquinn/Desktop/pmt_sim_results/shape_index_vs_time_ch{}".format(i))
         plt.show()
@@ -210,7 +224,7 @@ def main():
         plt.title("Channel: {} events: {}".format(i, num_events))
         plt.grid(True)
         plt.yscale('log')
-        plt.legend()
+        plt.legend(loc="upper left")
         plt.axvline(x=shape_cut, color='r', linestyle='-')
         plt.savefig("/Users/willquinn/Desktop/pmt_sim_results/shape_index_vs_time_hist_ch{}".format(i))
         plt.show()
@@ -219,19 +233,19 @@ def main():
         plt.plot(t_injected_success[i], a_injected[i], 'g.', label="success")
         plt.xlabel("time /ns")
         plt.title("Channel: {} events: {}".format(i, num_events))
-        plt.ylabel("amplitude index")
+        plt.ylabel("amplitude injected")
         plt.grid(True)
-        plt.legend()
+        plt.legend(loc="lower right")
         plt.savefig("/Users/willquinn/Desktop/pmt_sim_results/amplitude_success_vs_failures_ch{}".format(i))
         plt.show()
 
         plt.hist(a_injected_failure[i], bins=int(ran_range/2), range=(0, ran_range), alpha=0.5, label="failures")
         plt.hist(a_injected[i], bins=int(ran_range/2), range=(0, ran_range), alpha=0.5, label="success")
-        plt.xlabel("amplitude index")
+        plt.xlabel("amplitude injected")
         plt.title("Channel: {} events: {}".format(i, num_events))
         plt.ylabel("counts")
         plt.grid(True)
-        plt.legend()
+        plt.legend(loc="upper left")
         plt.text(0, 0, 'Success percentage: {}%'.format(round(num[0]/enum[0] * 100), 4))
         plt.savefig("/Users/willquinn/Desktop/pmt_sim_results/amplitude_success_vs_failures_hist_ch{}".format(i))
         plt.show()
