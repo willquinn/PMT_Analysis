@@ -20,7 +20,6 @@ class PMT_Object:
         self.sweep_bool = False
         self.template_bool = False
 
-
         # Default settings
         charge_cut = 6  # pC
         charge_range = [0, 100]
@@ -37,6 +36,7 @@ class PMT_Object:
         baseline = 1000
         waveform_length = 8000
         trigger_point = 100
+        integration = [0.3, 0.3]
 
         self.setting_dict = {
             "charge_cut"            : charge_cut,
@@ -53,7 +53,8 @@ class PMT_Object:
             "mf_amp_threshold"      : mf_amp_threshold,
             "waveform_length"       : waveform_length,
             "baseline"              : baseline,
-            "trigger_point"         : trigger_point
+            "trigger_point"         : trigger_point,
+            "integration"           : integration
         }
 
         self.template_pmt_pulse = np.array([], dtype='float')
@@ -70,7 +71,6 @@ class PMT_Object:
                                      "pulse_times_hist",
                                      "baseline_hist"
                                      ]
-
 
     def set_up_histograms(self):
         pmt_pulse_charge_hist = ROOT.TH1F(self.get_pmt_id() + "_pulse_charge_spectrum",

@@ -65,8 +65,8 @@ class PMT_Waveform:
 
             # Store the area of the pulse
             # TODO: make this univeral to any size of peak
-            self.set_pmt_pulse_start(self.get_pmt_pulse_peak_position() - 20)
-            self.set_pmt_pulse_end(self.get_pmt_pulse_peak_position() + 30)
+            #self.set_pmt_pulse_start(self.get_pmt_pulse_peak_position() - 20)
+            #self.set_pmt_pulse_end(self.get_pmt_pulse_peak_position() + 30)
 
             self.set_pmt_pulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_pulse_start():self.get_pmt_pulse_end()] - self.get_pmt_baseline()))/self.get_pmt_object().get_resistance())
             if self.get_pmt_pulse_charge() < self.get_pmt_object().get_setting("charge_cut"):
@@ -76,7 +76,9 @@ class PMT_Waveform:
             else:
                 self.set_pmt_pulse_trigger(True)
 
-                self.set_pmt_apulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_object().get_apulse_region():] - self.get_pmt_baseline()))/self.get_pmt_object().get_resistance())
+                self.calculate_charge()
+
+                #self.set_pmt_apulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_object().get_apulse_region():] - self.get_pmt_baseline()))/self.get_pmt_object().get_resistance())
 
                 self.set_pmt_waveform_reduced()
                 self.set_pmt_pulse_peak_amplitude(-1 * np.amin(self.get_pmt_waveform_reduced()))
@@ -319,3 +321,19 @@ class PMT_Waveform:
 
     def set_pmt_pulse_times(self, new_pulse_times: list):
         self.pmt_pulse_times = new_pulse_times
+
+    def calculate_charge(self):
+        start = 0
+        end = 0
+        for i in range(self.get_pmt_object().get_setting("trigger_point"), int(self.get_pmt_pulse_peak_position())):
+            if self.get_pmt_waveform()[i] <= self.get_pmt_waveform()[self.get_pmt_pulse_peak_position()]/self.get_pmt_object().get_setting("integration")[0]:
+                start = i
+                break
+        for i in range(int(self.get_pmt_pulse_peak_position()), self.get_pmt_waveform_length()):
+            if self.get_pmt_waveform()[i] >= self.get_pmt_waveform()[self.get_pmt_pulse_peak_position()]/self.get_pmt_object().get_setting("integration")[1]:
+                end = i
+                break
+        self.set_pmt_pulse_start(start)
+        self.set_pmt_pulse_end(end)
+        self.set_pmt_pulse_charge(-1 * (np.sum(self.get_pmt_waveform()[
+                                               start:end] - self.get_pmt_baseline())) / self.get_pmt_object().get_resistance())
