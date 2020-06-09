@@ -49,11 +49,11 @@ def main():
                 filter_list.append(True)
             else:
                 filter_list.append(False)
-        '''for index,element in enumerate(x):
+        for index,element in enumerate(x):
             if element < 0.01:
                 filter_list[index] = False
             else:
-                pass'''
+                pass
         x_array = np.linspace(np.amin(x[filter_list]), np.amax(x[filter_list]), 10000)
         res_err = res[i] * np.sqrt((sig_errs[i] / sigs[i]) ** 2 + (mu_errs[i] / mus[i]) ** 2)
 
@@ -85,7 +85,7 @@ def main():
                                                                                                           pcov[1][1]),
                                                                                                       chi_2))
 
-        ax1.set_xlabel("Exposure Time atm-days")
+        ax1.set_xlabel("Exposure Time days")
         ax1.set_ylabel("1Mev Resolution /%", color=color)
         ax1.set_ylim(2, 4.25)
         ax1.tick_params(axis='y', labelcolor=color)
@@ -93,11 +93,12 @@ def main():
         color = 'tab:blue'
         ax2 = ax1.twinx()
         ax2.plot(x[filter_list], chis[i][filter_list], '.', color=color)
-        ax2.set_ylabel('Chi2 of resolution fit', color=color)  # we already handled the x-label with ax1
+        ax2.set_ylabel('Chi2 of bismuth 1MeV fit', color=color)  # we already handled the x-label with ax1
         ax2.tick_params(axis='y', labelcolor=color)
         ax2.set_ylim(0, 10)
         fig.tight_layout()
 
+        plt.savefig("/Users/willquinn/Desktop/resolution_vs_date_time_" + str(i))
         plt.show()
 
     '''x_ch0 = process_date(data_Ch0[1])

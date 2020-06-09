@@ -47,3 +47,5 @@ Define the known waveform length
 Define the known baseline
 
 # trigger_point : 100
+
+# integration : 3,3

@@ -32,7 +32,7 @@ def main():
                                  'formats': ('i4', 'i4', 'i4', 'i4', 'f4', 'f4', 'f4', 'f4', 'f4', 'f4')}, unpack=True)
 
     print(np.sort(apulse_data_Ch0[2]))
-    x_ch0 = process_exposure(apulse_data_Ch0[2])
+    x_ch0 = process_date(apulse_data_Ch0[2])
     x_ch1 = process_date(apulse_data_Ch1[2])
     x_array = np.linspace(-30, 145, 10000)
 
@@ -41,13 +41,14 @@ def main():
     plt.plot(x_ch0, apulse_data_Ch0[6], '.', color='g', label='medium cut')
     plt.plot(x_ch0, apulse_data_Ch0[8], '.', color='b', label='high cut')
     plt.title("Average number of afterpulses per waveform ch0")
-    plt.xlabel("Exposure Time atm-days")
+    plt.xlabel("Exposure Time days")
     plt.ylabel("Percentage number of afterpulses /%")
     #plt.legend()
     #plt.ylim(20, 60)
     #plt.xscale('log')
     plt.grid(True)
-    #plt.show()
+    plt.savefig("/Users/willquinn/Desktop/apulse_vs_date_time_ch0")
+    plt.show()
 
     # plt.errorbar(x_ch0, apulse_data_Ch0[3], apulse_data_Ch0[4], fmt='.', color='b')
     plt.plot(x_ch1, apulse_data_Ch1[4], '.', color='r', label='low cut')
@@ -60,9 +61,10 @@ def main():
     #plt.ylim(20, 60)
     # plt.xscale('log')
     plt.grid(True)
-    #plt.show()
+    plt.savefig("/Users/willquinn/Desktop/apulse_vs_date_time_ch1")
+    plt.show()
 
-    t = np.linspace(100,13000000,13000000)
+    '''t = np.linspace(100,13000000,13000000)
     pi = my_func(t, 10000, 100, 0.0000001)
     dtpi = my_func_der(t, 10000, 100, 0.0000001)
     plt.plot(t,pi,'b')
@@ -80,7 +82,7 @@ def main():
     plt.yscale('log')
     plt.xlabel("Time /s")
     plt.ylabel("$\\frac{\delta p_i}{\delta t}$ /Pa")
-    plt.show()
+    plt.show()'''
 
 
 if __name__ == '__main__':
