@@ -58,30 +58,18 @@ class PMT_Waveform:
         if self.get_pmt_pulse_peak_position() < self.get_pmt_object().get_pulse_time_threshold():
             pass
         else:
-            # TODO: move this to after cuts. Deal with all cuts here
 
-            # Store the baseline
+            self.waveform_length = self.get_pmt_waveform().size
             self.set_pmt_baseline(np.average(self.pmt_waveform[0:self.get_pmt_object().get_setting("trigger_point")]))
+            self.set_pmt_waveform_reduced()
+            self.set_pmt_pulse_peak_amplitude(-1 * np.amin(self.get_pmt_waveform_reduced()))
+            self.calculate_charge()
 
-            # Store the area of the pulse
-            # TODO: make this univeral to any size of peak
-            #self.set_pmt_pulse_start(self.get_pmt_pulse_peak_position() - 20)
-            #self.set_pmt_pulse_end(self.get_pmt_pulse_peak_position() + 30)
-
-            self.set_pmt_pulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_pulse_start():self.get_pmt_pulse_end()] - self.get_pmt_baseline()))/self.get_pmt_object().get_resistance())
             if self.get_pmt_pulse_charge() < self.get_pmt_object().get_setting("charge_cut"):
                 self.update_results_dict()
-                self.pmt_waveform_length = self.pmt_waveform.size
                 return
             else:
                 self.set_pmt_pulse_trigger(True)
-
-                self.calculate_charge()
-
-                #self.set_pmt_apulse_charge(-1 * (np.sum(self.get_pmt_waveform()[self.get_pmt_object().get_apulse_region():] - self.get_pmt_baseline()))/self.get_pmt_object().get_resistance())
-
-                self.set_pmt_waveform_reduced()
-                self.set_pmt_pulse_peak_amplitude(-1 * np.amin(self.get_pmt_waveform_reduced()))
 
                 # Only sweep the waveform if there is a template
                 if self.get_pmt_object().get_template_bool() and self.get_pmt_pulse_peak_position() < self.get_pmt_object().get_waveform_length() - self.get_pmt_object().get_template_pmt_pulse().size:
