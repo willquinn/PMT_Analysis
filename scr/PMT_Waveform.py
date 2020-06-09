@@ -59,7 +59,7 @@ class PMT_Waveform:
             pass
         else:
 
-            self.waveform_length = self.get_pmt_waveform().size
+            self.pmt_waveform_length = self.get_pmt_waveform().size
             self.set_pmt_baseline(np.average(self.pmt_waveform[0:self.get_pmt_object().get_setting("trigger_point")]))
             self.set_pmt_waveform_reduced()
             self.set_pmt_pulse_peak_amplitude(-1 * np.amin(self.get_pmt_waveform_reduced()))
