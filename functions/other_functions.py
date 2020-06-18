@@ -23,6 +23,7 @@ def sncd_parse_arguments():
     parser.add_argument('-topology', required=False, type=list, help='Define the topology of the PMT Array')
     parser.add_argument('-t', required=False, type=str, help='Path for the templates')
     parser.add_argument('-o', required=True, type=str, help='Output file name')
+    parser.add_argument('-w', required=False, type=str, help='which wall')
     args = parser.parse_args()
     return args
 
@@ -183,6 +184,14 @@ def fit_bismuth_function_from_file(root_file_name: str):
 
 def get_data_path(input_data_file: str):
     return input_data_file.split('filenames')[0]
+
+
+def inner_product(l1, l2):
+    assert len(l1) == len(l2)
+    temp = 0
+    for i in range(len(l1)):
+        temp += abs(l1[i]*l2[i])
+    return np.sqrt(temp)
 
 
 def process_date(date_array: np.array):
@@ -665,6 +674,66 @@ def process_date(date_array: np.array):
             temp_date = 207
         if date == 200531:
             temp_date = 208
+        if date == 200601:
+            temp_date = 209
+        if date == 200602:
+            temp_date = 210
+        if date == 200603:
+            temp_date = 211
+        if date == 200604:
+            temp_date = 212
+        if date == 200605:
+            temp_date = 213
+        if date == 200606:
+            temp_date = 214
+        if date == 200607:
+            temp_date = 215
+        if date == 200608:
+            temp_date = 216
+        if date == 200609:
+            temp_date = 217
+        if date == 200610:
+            temp_date = 218
+        if date == 200611:
+            temp_date = 219
+        if date == 200612:
+            temp_date = 220
+        if date == 200613:
+            temp_date = 221
+        if date == 200614:
+            temp_date = 222
+        if date == 200615:
+            temp_date = 223
+        if date == 200616:
+            temp_date = 224
+        if date == 200617:
+            temp_date = 225
+        if date == 200618:
+            temp_date = 226
+        if date == 200619:
+            temp_date = 227
+        if date == 200620:
+            temp_date = 228
+        if date == 200621:
+            temp_date = 229
+        if date == 200622:
+            temp_date = 230
+        if date == 200623:
+            temp_date = 231
+        if date == 200624:
+            temp_date = 232
+        if date == 200625:
+            temp_date = 233
+        if date == 200626:
+            temp_date = 234
+        if date == 200627:
+            temp_date = 235
+        if date == 200628:
+            temp_date = 236
+        if date == 200629:
+            temp_date = 237
+        if date == 200630:
+            temp_date = 238
 
         output_list.append(temp_date)
 
@@ -1153,6 +1222,66 @@ def process_exposure(date_array: np.array):
             temp_date = 110/10 + 97/100
         if date == 200531:
             temp_date = 111/10 + 97/100
+        if date == 200601:
+            temp_date = 112/10 + 97/100
+        if date == 200602:
+            temp_date = 113/10 + 97/100
+        if date == 200603:
+            temp_date = 114/10 + 97/100
+        if date == 200604:
+            temp_date = 115/10 + 97/100
+        if date == 200605:
+            temp_date = 116/10 + 97/100
+        if date == 200606:
+            temp_date = 117/10 + 97/100
+        if date == 200607:
+            temp_date = 118/10 + 97/100
+        if date == 200608:
+            temp_date = 119/10 + 97/100
+        if date == 200609:
+            temp_date = 120/10 + 97/100
+        if date == 200610:
+            temp_date = 121/10 + 97/100
+        if date == 200611:
+            temp_date = 122/10 + 97/100
+        if date == 200612:
+            temp_date = 123/10 + 97/100
+        if date == 200613:
+            temp_date = 124/10 + 97/100
+        if date == 200614:
+            temp_date = 125/10 + 97/100
+        if date == 200615:
+            temp_date = 126/10 + 97/100
+        if date == 200616:
+            temp_date = 127/10 + 97/100
+        if date == 200617:
+            temp_date = 128/10 + 97/100
+        if date == 200618:
+            temp_date = 129/10 + 97/100
+        if date == 200619:
+            temp_date = 130/10 + 97/100
+        if date == 200620:
+            temp_date = 131/10 + 97/100
+        if date == 200621:
+            temp_date = 132/10 + 97/100
+        if date == 200622:
+            temp_date = 133/10 + 97/100
+        if date == 200623:
+            temp_date = 134/10 + 97/100
+        if date == 200624:
+            temp_date = 135/10 + 97/100
+        if date == 200625:
+            temp_date = 136/10 + 97/100
+        if date == 200626:
+            temp_date = 137/10 + 97/100
+        if date == 200627:
+            temp_date = 138/10 + 97/100
+        if date == 200628:
+            temp_date = 139/10 + 97/100
+        if date == 200629:
+            temp_date = 140/10 + 97/100
+        if date == 200630:
+            temp_date = 141/10 + 97/100
 
         output_list.append(temp_date)
 
