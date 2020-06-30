@@ -5,10 +5,12 @@ sys.path.insert(1, '..')
 # import ROOT and bash commands
 import ROOT
 import os
+import tqdm
 
 # import python plotting and numpy modules
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.signal import find_peaks
 
 # import stats module
 from scipy.optimize import curve_fit
@@ -27,13 +29,14 @@ def main():
     input_data_file_name = args.i
     config_file_name = args.c
     output_file_name = args.o
-    sweep_bool = args.sweep
     ##############################
 
     # Do some string manipulation to get the date and time from the file name
     #################################################
-    date, time = get_date_time(input_data_file_name)
-    voltage = int(get_voltage(input_data_file_name))
+    #date, time = get_date_time(input_data_file_name)
+    #voltage = int(get_voltage(input_data_file_name))
+    date = "200501"
+    voltage = 1400
     #################################################
 
     # Check to see if the data file exists
@@ -49,45 +52,100 @@ def main():
     file.cd()
 
     tree = file.T
-    tree.Print()
 
     topology = [2, 1]
-    pmt_array = PMT_Array(topology, date + "_" + time)
-    pmt_array.set_pmt_id("GAO607_" + date + "_" + time, 0)
-    pmt_array.set_pmt_id("GAO612_" + date + "_" + time, 1)
+    pmt_array = PMT_Array(topology, date)
+    pmt_array.set_pmt_id("GAO607_" + date, 0)
+    pmt_array.set_pmt_id("GAO612_" + date, 1)
 
     # Set the cuts you wish to apply
     # If you don't do this the defaults are used
-    if config_file_name is not None:
-        pmt_array.apply_setting(config_file_name)
+    #if config_file_name is not None:
+    #    pmt_array.apply_setting(config_file_name)
 
-    if sweep_bool == "True":
-        pmt_array.set_sweep_bool(True)
-        if voltage == 1000:
-            pmt_array.set_pmt_templates(
-                "/unix/nemo4/PMT_He_Study_nemo4/Templates/new/191008_A1000_B1000_templates.root",
-                ["A1000_B1000_Ch0_Template", "A1000_B1000_Ch1_Template"])
-        elif voltage == 1400:
-            pmt_array.set_pmt_templates(
-                "/unix/nemo4/PMT_He_Study_nemo4/Templates/new/190621_A1400_B1400_templates.root",
-                ["A1400_B1400_Ch0_Template", "A1400_B1400_Ch1_Template"])
+    apulse_nums = [[], []]
+    empty_count = [0, 0]
+    count = [0, 0]
 
-    pulse_charges = [[], []]
-    x = [[], []]
-    i = [0, 0]
+    amp_cut = 15
+    shape_cut = 0.9
 
-    for event in tree:
+    for event in tqdm.tqdm(tree):
         OM_ID = event.OM_ID
-        event_num = event.event_num
+        '''event_num = event.event_num
         pulse_time = event.pulse_time
         pulse_amplitude = event.pulse_amplitude
         pulse_charge = event.pulse_charge
         pulse_baseline = event.pulse_baseline
         waveform = event.waveform
+        mf_amps = np.array(event.mf_amplitudes)
+        mf_shapes = np.array(event.mf_shapes)'''
+        apulse_num = event.apulse_num
+        '''apulse_times = event.apulse_times
+        apulse_amplitudes = event.apulse_amplitudes
+        apulse_shapes = event.apulse_shapes'''
 
-        pmt_waveform = PMT_Waveform(waveform, pmt_array.get_pmt_object_number(OM_ID))
+        #pmt_waveform = PMT_Waveform(waveform, pmt_array.get_pmt_object_number(OM_ID))
 
-        if pmt_waveform.get_pulse_trigger():
+
+
+        '''shape_peaks, _ = find_peaks(mf_shapes[800:],
+                                    height=shape_cut,
+                                    distance=39*2)
+        amplitude_peaks, _ = find_peaks(mf_amps[800:],
+                                        height=amp_cut,
+                                        distance=39*2)'''
+
+        '''temp = []
+        if len(shape_peaks) > 0:
+            for index, value in enumerate(shape_peaks):
+                if value in amplitude_peaks:
+                    temp.append(value + 800)'''
+
+        if apulse_num > 0:
+            count[OM_ID] += 1
+
+            '''plt.subplot(2, 1, 1)
+            plt.plot(mf_amps, 'b-')
+            plt.plot(temp, mf_amps[temp], 'rx')
+            plt.title("Example Convolution")
+            plt.axvline(800, 0, 250, color='g', ls='--')
+            plt.grid()
+            plt.axhline(amp_cut)
+            plt.ylabel("amplitude index")
+            plt.xlim(0, len(mf_amps))
+            plt.ylim(0, 250)
+
+            plt.subplot(2, 1, 2)
+            plt.plot(mf_shapes, 'r-')
+            plt.plot(temp, mf_shapes[temp], 'bx')
+            plt.axvline(800, 0, 250, color='g', ls='--')
+            plt.xlabel("Timestamp /ns")
+            plt.ylabel("shape index")
+            plt.grid()
+            plt.axhline(shape_cut)
+            plt.xlim(0, len(mf_amps))
+            #plt.xlim(800, 7000)
+            plt.ylim(0, 1)
+
+            plt.show()
+            plt.close()'''
+        else:
+            empty_count[OM_ID] += 1
+        apulse_nums[OM_ID].append(apulse_num)
+
+
+        # plt.plot(mf_amps, 'r.')
+        # plt.ylim(0, 1)
+        '''plt.show(block=False)
+        plt.pause(0.1)
+        plt.close()'''
+        # plt.show()
+        # plt.close()
+
+
+
+        '''if pmt_waveform.get_pulse_trigger():
             pmt_waveform.fill_pmt_hists()
 
         if voltage == 1000:
@@ -96,11 +154,16 @@ def main():
             i[OM_ID] += 1
 
         elif voltage == 1400:
-            pass
+            pass'''
 
-        del pmt_waveform
+        #del pmt_waveform
 
-    for i_pmt in range(len(pulse_charges)):
+    print(">>> ", count[0]/(count[0] + empty_count[0]) * 100)
+    plt.hist(apulse_nums[0], [0,1,2,3,4,5,6,7,8,9,10])
+    plt.yscale('log')
+    plt.show()
+
+    '''for i_pmt in range(len(pulse_charges)):
         if len(pulse_charges[i_pmt]) > 0:
             y_array_og, bins = np.histogram(pulse_charges[i_pmt], bins=150, range=(0, 50))
             y_err_og = []
@@ -159,7 +222,7 @@ def main():
         else:
             pass
 
-    output_file.close()
+    output_file.close()'''
 
 
 if __name__ == '__main__':
