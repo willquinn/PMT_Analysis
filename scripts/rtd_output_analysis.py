@@ -84,8 +84,8 @@ def main():
         main_wall = 0
 
     num_events = 1000000
-    num_bins = 500
-    max_amp = 18000
+    num_bins = 100
+    max_amp = 1000
 
     # isolate the run number for naming convienience
     run_number = input_data_filename.split("_")[1]
@@ -98,7 +98,7 @@ def main():
         raise Exception("Error opening data file")
 
     # Set up the pmt array
-    topology = [20, 13]
+    topology = [13, 20]
     num_pmts = topology[0]*topology[1]
     pmt_array = PMT_Array(topology, run_number)
     for i in range(topology[0]):
@@ -122,7 +122,7 @@ def main():
 
     raw_amplitudes = [[] for i in range(num_pmts)]
 
-    templates = read_average_waveforms("~/Desktop/test_template.root", num_pmts)
+    '''templates = read_average_waveforms("~/Desktop/test_template.root", num_pmts)
     amp_hists = ROOT.TList()
 
     output_file = ROOT.TFile(output_data_filename, "RECREATE")
@@ -131,7 +131,7 @@ def main():
         temp_hist = ROOT.TH1D(pmt_array.get_pmt_object_number(i_om).get_pmt_id() + "_amplitude_index_spectrum",
                               pmt_array.get_pmt_object_number(i_om).get_pmt_id() + "_amplitude_index_spectrum",
                               num_bins, 0, max_amp)
-        amp_hists.Add(temp_hist)
+        amp_hists.Add(temp_hist)'''
 
     # Run over file to create containers
     for event in tqdm.tqdm(tree):
@@ -141,9 +141,9 @@ def main():
         fall_time = event.fall_time/256
         rise_time = event.rise_time/256
 
-        #raw_amplitudes[OM_ID].append(amplitude)
+        raw_amplitudes[OM_ID].append(amplitude)
 
-        pmt_waveform = PMT_Waveform(event.waveform, pmt_array.get_pmt_object_number(OM_ID))
+        '''pmt_waveform = PMT_Waveform(event.waveform, pmt_array.get_pmt_object_number(OM_ID))
         peak = pmt_waveform.get_pmt_pulse_peak_position()
 
         if peak > 51:
@@ -154,22 +154,30 @@ def main():
 
             except:
                 print("Waveform", len(pmt_waveform.get_pmt_waveform_reduced()[peak - 50:peak + 350]))
-                print("Template", len(templates[OM_ID]))
+                print("Template", len(templates[OM_ID]))'''
 
         if event_counter[0] == num_events:
             break
         event_counter[OM_ID] += 1
 
-        del pmt_waveform
+        #del pmt_waveform
 
     amp_bins = [i*max_amp/num_bins for i in range(num_bins)]
     amp_cuts = []
 
-    output_file.cd()
+    #output_file.cd()
     for i_om in tqdm.tqdm(range(num_pmts)):
         #amp_hists[i_om].SaveAs("/Users/willquinn/Desktop/PDFs/amplitude_index_"+str(i_om)+".pdf")
-        amp_hists[i_om].Write()
-    output_file.Close()
+        #amp_hists[i_om].Write()
+        plt.hist(raw_amplitudes[i_om], bins=amp_bins, color='g')
+        plt.xlabel("Amplitude /mV")
+        plt.ylabel("Counts")
+        plt.title(pmt_array.get_pmt_object_number(i_om).get_pmt_id() + "_amplitude_spectrum Events: " + str(event_counter[i_om]))
+        plt.savefig("/Users/willquinn/Desktop/PDFs/om_" + str(i_om) + "_amplitude_spectrum_HT")
+        plt.grid()
+        plt.yscale('log')
+        plt.close()
+    #output_file.Close()
 
     return
 
