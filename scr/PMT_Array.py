@@ -95,7 +95,10 @@ class PMT_Array:
                         value_ = float(value[0].strip())
                 else:
                     for i in range(len(value)):
-                        value_.append(int(value[i].strip()))
+                        try:
+                            value_.append(int(value[i].strip()))
+                        except:
+                            value_.append(float(value[i].strip()))
 
                 temp_list = [description, value_]
                 output_list.append(temp_list)
