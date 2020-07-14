@@ -28,6 +28,17 @@ def sncd_parse_arguments():
     return args
 
 
+def pmt_parse_arguments():
+    import argparse
+    parser = argparse.ArgumentParser(description="Input file names")
+    parser.add_argument('-i', required=True, type=str, help='Input data file path')
+    parser.add_argument('-c', required=False, type=str, help='Config file')
+    parser.add_argument('-o', required=True, type=str, help='Output file name')
+    parser.add_argument('-s', required=False, type=bool, help='summary boolean')
+    args = parser.parse_args()
+    return args
+
+
 def io_parse_arguments():
     import argparse
     parser = argparse.ArgumentParser(description="Input file names")
@@ -738,7 +749,7 @@ def process_date(date_array: np.array):
         output_list.append(temp_date)
 
     output_array = np.array(output_list)
-    assert output_array.size == date_array.size
+    assert output_array.size == len(date_array)
     return output_array
 
 
