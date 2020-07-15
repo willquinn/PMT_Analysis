@@ -5,11 +5,18 @@ avogadro_constant = 6.022140e23
 # For a complete analysis there should be a cut on the vertex separation too, at the very least. These are
 # sensitivity module branches
 
-main_cut_str = "sensitivity.number_of_electrons==2 && sensitivity.passes_two_calorimeters && " \
-               "sensitivity.passes_associated_calorimeters && (sensitivity.higher_electron_energy != " \
-               "sensitivity.lower_electron_energy) "
+num_e = "sensitivity.number_of_electrons==2"
+two_cal = "sensitivity.passes_two_calorimeters"
+assoc_cal = "sensitivity.passes_associated_calorimeters"
+ext_prob = "sensitivity.external_probability<0.01"
+int_prob = "sensitivity.internal_probability>0.04"
+two_clust = "sensitivity.passes_two_clusters"
+two_track = "sensitivity.passes_two_tracks"
+energy_cut = "(sensitivity.total_calorimeter_energy)>=2 && (sensitivity.total_calorimeter_energy)< 3.2"
+main_cut_str = num_e + " && " + two_cal + " && " + assoc_cal + " && " + ext_prob + " && " + int_prob + " && " + two_clust + " && " + two_track
+
 # check these numbers are the right way round
-prob_cut_str = "&& sensitivity.external_probability<0.01 && sensitivity.internal_probability>0.04"
+prob_cut_str = ""
 
 selenium = {
     "name": "Se",
@@ -149,16 +156,23 @@ class SampleIsotope(Isotope):
 
 #  make a cut on true energy in the 2nubb simulation. That allows me to use a smaller simulated file
 # that doesn't include events I would cut anyway. If you simulate like this, you can get the fraction of the total
-# spectrum that was retained from the brio file. Put that number in here. If you seimulate a full spectrum, it is 1.
+# spectrum that was retained from the brio file. Put that number in here. If you simulate a full spectrum, it is 1.
 
 
-def calculate_efficiencies(tree: ROOT.TTree, sample: SampleIsotope, is2nubb: bool, all_entries: int):
+def calculate_efficiencies(tree: ROOT.TTree, sample: SampleIsotope, is2nubb: bool, all_entries: int, identifier):
     print(">>> calculate_efficiencies()")
     is2nubb = False
     all_entries = 0
 
+    type_ = sample.get_isotope_name() + sample.get_molar_mass_text() + "_" + identifier
+
+    min_energy = 2
+    max_energy = 3.6
+    nbins = int(max_energy * 20 - min_energy * 20)
+
     # Reconstructable events
     tot_entries = tree.GetEntries()
+    stack = ROOT.THStack("hs", "")
 
     # In the 2nubb case, some simulate events are not reconstructed
     print("Total events", tot_entries)
@@ -169,32 +183,122 @@ def calculate_efficiencies(tree: ROOT.TTree, sample: SampleIsotope, is2nubb: boo
     if all_entries > 0:
         tot_entries = all_entries # Use this if not all entries were reconstructable
 
-    passes_cal_cut = tree.GetEntries("sensitivity.passes_two_calorimeters")
+    passes_cal_cut = tree.GetEntries(two_cal)
     print("Two triggered calorimeters:", float(passes_cal_cut) / float(tot_entries) * 100, "%")
+    name = "h_" + type_ + "_" + two_cal
+    temp_0 = ROOT.TH1D(name, name, nbins, min_energy, max_energy)
+    tree.Draw("(sensitivity.total_calorimeter_energy) >> " + name, two_cal, "HIST")
+    temp_0.SetFillColor(7)
+    temp_0.GetXaxis().SetTitle("E_{1}+E_{2} (MeV)")
+    stack.Add(temp_0)
+    '''c_0 = ROOT.TCanvas()
+    temp_0.Draw()
+    c_0.cd()
+    c_0.SaveAs("~/Desktop/sensitivity/plots/" + type_ + "_0_0.png")'''
+
 
     # 2 tracker clusters
-    passes_cluster_cut = tree.GetEntries("sensitivity.passes_two_calorimeters && sensitivity.passes_two_clusters")
+    passes_cluster_cut = tree.GetEntries(two_cal + " && " + two_clust)
     print("Two tracker clusters with a minimum of 3 cells:", float(passes_cluster_cut) / float(tot_entries) * 100, "%")
+    name = "h_" + type_ + "_" + two_cal + "_" + two_clust
+    temp_1 = ROOT.TH1D(name, name, nbins, min_energy, max_energy)
+    tree.Draw("(sensitivity.total_calorimeter_energy) >> " + name, two_cal + " && " + two_clust, "HIST")
+    temp_1.SetFillColor(1)
+    stack.Add(temp_1)
+    '''c_1 = ROOT.TCanvas()
+    temp_1.Draw()
+    c_1.cd()
+    c_1.SaveAs("~/Desktop/sensitivity/plots/" + type_ + "_1_1.png")'''
 
     # 2 reconstructed tracks
-    passes_tracker_cut = tree.GetEntries("sensitivity.passes_two_calorimeters && sensitivity.passes_two_clusters && sensitivity.passes_two_tracks ")
+    passes_tracker_cut = tree.GetEntries(two_cal + " && " + two_clust + " && " + two_track)
     print("Two reconstructed tracks:", float(passes_tracker_cut) / float(tot_entries) * 100, "%")
+    name = "h_" + type_ + "_" + two_cal + "_" + two_clust + "_" + two_track
+    temp_2 = ROOT.TH1D(name, name, nbins, min_energy, max_energy)
+    tree.Draw("(sensitivity.total_calorimeter_energy) >> " + name, two_cal + " && " + two_clust + " && " + two_track, "HIST")
+    temp_2.SetFillColor(2)
+    stack.Add(temp_2)
+    '''c_2 = ROOT.TCanvas()
+    temp_2.Draw()
+    c_2.cd()
+    c_2.SaveAs("~/Desktop/sensitivity/plots/" + type_ + "_2_2.png")'''
 
     # Tracks have associated calorimeter hits
-    passes_associated_cal_cut = tree.GetEntries("sensitivity.passes_two_calorimeters && sensitivity.passes_two_clusters && sensitivity.passes_two_tracks && sensitivity.passes_associated_calorimeters")
+    passes_associated_cal_cut = tree.GetEntries(two_cal + " && " + two_clust + " && " + two_track + " && " + assoc_cal)
     print("Tracks have associated calorimeter hits:", float(passes_associated_cal_cut) / float(tot_entries) * 100, "%")
+    name = "h_" + type_ + "_" + two_cal + "_" + two_clust + "_" + two_track + "_" + assoc_cal
+    temp_3 = ROOT.TH1D(name, name, nbins, min_energy, max_energy)
+    tree.Draw("(sensitivity.total_calorimeter_energy) >> " + name, two_cal + " && " + two_clust + " && " + two_track + " && " + assoc_cal, "HIST")
+    temp_3.SetFillColor(3)
+    stack.Add(temp_3)
+    '''c_3 = ROOT.TCanvas()
+    temp_3.Draw()
+    c_3.cd()
+    c_3.SaveAs("~/Desktop/sensitivity/plots/" + type_ + "_3_3.png")'''
 
     # Passes NEMO3 internal / external probability cuts
-    passes_prob_cut = tree.GetEntries("sensitivity.passes_two_calorimeters && sensitivity.passes_two_clusters && sensitivity.passes_two_tracks && sensitivity.passes_associated_calorimeters && sensitivity.external_probability<0.01 && sensitivity.internal_probability>0.04 ")
+    passes_prob_cut = tree.GetEntries(two_cal + " && " + two_clust + " && " + two_track + " && " + assoc_cal + " && " +
+                                      ext_prob + " && " + int_prob)
     print("And passes internal/external probability cut:", float(passes_prob_cut) / float(tot_entries) * 100, "%")
+    name = "h_" + type_ + "_" + two_cal + "_" + two_clust + "_" + two_track + "_" + assoc_cal + "_ext_int_prob"
+    temp_4 = ROOT.TH1D(name, name, nbins, min_energy, max_energy)
+    tree.Draw("(sensitivity.total_calorimeter_energy) >> " + name, two_cal + " && " + two_clust + " && " + two_track + " && " + assoc_cal + " && " +
+              ext_prob + " && " + int_prob, "HIST")
+    temp_4.SetFillColor(4)
+    stack.Add(temp_4)
+    '''c_4 = ROOT.TCanvas()
+    temp_4.Draw()
+    c_4.cd()
+    c_4.SaveAs("~/Desktop/sensitivity/plots/" + type_ + "_4_4.png")'''
 
     # Passes NEMO3 internal / external probability cuts, 2 - 3.2 MeV
-    passes_prob_roi = tree.GetEntries("sensitivity.passes_two_calorimeters && sensitivity.passes_two_clusters && sensitivity.passes_two_tracks && sensitivity.passes_associated_calorimeters && sensitivity.external_probability<0.01 && sensitivity.internal_probability>0.04 &&  (sensitivity.total_calorimeter_energy)>=2 && (sensitivity.total_calorimeter_energy)< 3.2")
+    passes_prob_roi = tree.GetEntries(two_cal + " && " + two_clust + " && " + two_track + " && " + assoc_cal + " && " +
+                                      ext_prob + " && " + int_prob + " && " + energy_cut)
     print("Passes internal/external probability in Se82ROI:", float(passes_prob_roi) / float(tot_entries) * 100, "%")
+    name = "h_" + type_ + "_" + two_cal + "_" + two_clust + "_" + two_track + "_" + assoc_cal + "_ext_int_prob_energy_cut"
+    temp_5 = ROOT.TH1D(name, name, nbins, min_energy, max_energy)
+    tree.Draw("(sensitivity.total_calorimeter_energy) >> " + name, two_cal + " && " + two_clust + " && " + two_track + " && " + assoc_cal + " && " +
+              ext_prob + " && " + int_prob + " && " + energy_cut, "HIST")
+    temp_5.SetFillColor(5)
+    stack.Add(temp_5)
+    '''c_5 = ROOT.TCanvas()
+    temp_5.Draw()
+    c_5.cd()
+    c_5.SaveAs("~/Desktop/sensitivity/plots/" + type_ + "_5_5.png")'''
 
     # And both tracks have negative charge reconstruction
-    #passes_two_electron_cut = tree.GetEntries("sensitivity.passes_two_calorimeters && sensitivity.passes_two_clusters && sensitivity.passes_two_tracks && sensitivity.passes_associated_calorimeters && sensitivity.number_of_electrons==2  && sensitivity.external_probability<0.01 && sensitivity.internal_probability>0.04 && (sensitivity.total_calorimeter_energy)>=2 && (sensitivity.total_calorimeter_energy)< 3.2")
-    #print("And both tracks have negative charge: ", float(passes_two_electron_cut) / float(tot_entries) * 100, "%")
+    passes_two_electron_cut = tree.GetEntries(two_cal + " && " + two_clust + " && " + two_track + " && " + assoc_cal +
+                                              " && " + ext_prob + " && " + int_prob + " && " + energy_cut + " && " + num_e)
+    print("And both tracks have negative charge: ", float(passes_two_electron_cut) / float(tot_entries) * 100, "%")
+    name = "h_" + type_ + "_" + two_cal + "_" + two_clust + "_" + two_track + "_" + assoc_cal + "_ext_int_prob_energy_cut_num_e"
+    temp_6 = ROOT.TH1D(name, name, nbins, min_energy, max_energy)
+    tree.Draw("(sensitivity.total_calorimeter_energy) >> " + name, two_cal + " && " + two_clust + " && " + two_track + " && " + assoc_cal + " && " +
+              ext_prob + " && " + int_prob + " && " + energy_cut + " && " + num_e,  "HIST")
+    temp_6.SetFillColor(6)
+    stack.Add(temp_6)
+    '''c_6 = ROOT.TCanvas()
+    temp_6.Draw()
+    c_6.cd()
+    c_6.SaveAs("~/Desktop/sensitivity/plots/" + type_ + "_6_6.png")'''
+
+    c = ROOT.TCanvas()
+    c.cd()
+    stack.Draw("nostack")
+    stack.GetXaxis().SetTitle("E_{1}+E_{2} (MeV)")
+    stack.GetYaxis().SetTitle("")
+    stack.SetTitle("")
+    c.SetLogy(True)
+    stack_legend = ROOT.TLegend(0.2, 0.2, 0.35, 0.35)
+    ROOT.gStyle.SetLegendBorderSize(0)
+    stack_legend.AddEntry(temp_0, '2calos')
+    stack_legend.AddEntry(temp_1, "2clusters")
+    stack_legend.AddEntry(temp_2, '2tracks')
+    stack_legend.AddEntry(temp_3, "associated calo")
+    stack_legend.AddEntry(temp_4, 'ext and int probs')
+    stack_legend.AddEntry(temp_5, "energy")
+    stack_legend.AddEntry(temp_6, '2e-')
+    stack_legend.Draw()
+    c.SaveAs("~/Desktop/sensitivity/plots/" + type_ + "_stack.png")
 
     return tot_entries
 
@@ -205,7 +309,6 @@ def plot_bkgd_eff(bkgd_isotope: BackgroundIsotope, additional_cut: str, min_ener
     #print(bkgd_isotope.get_root_file_name())
     tree = file.Get("Sensitivity;1")
     n_entries = tree.GetEntries()
-    print(">>>", n_entries)
     h_eff = plot_efficiency(tree, n_entries, additional_cut, min_energy, max_energy, "eff_"+bkgd_isotope.get_isotope_name())
     try:
         h_eff.GetEentries()
@@ -216,10 +319,8 @@ def plot_bkgd_eff(bkgd_isotope: BackgroundIsotope, additional_cut: str, min_ener
     return h_eff
 
 
-def plot_bkgd_energy(bkgd_isotope: BackgroundIsotope, additional_cut: str, min_energy: float, max_energy: float):
+def plot_bkgd_energy(tree: ROOT.TTree, bkgd_isotope: BackgroundIsotope, additional_cut: str, min_energy: float, max_energy: float):
     print(">>> plot_bkgd_energy()")
-    file = ROOT.TFile(bkgd_isotope.get_root_file_name())
-    tree = file.Get("Sensitivity;1")
     name = "energy" + bkgd_isotope.get_isotope_name()
     nbins = int(max_energy * 20 - min_energy * 20)
     h_energy = ROOT.TH1D(name, name, nbins, min_energy, max_energy)
@@ -231,10 +332,11 @@ def plot_bkgd_energy(bkgd_isotope: BackgroundIsotope, additional_cut: str, min_e
               "sensitivity.number_of_electrons==2 && sensitivity.passes_two_calorimeters && sensitivity.passes_associated_calorimeters " + additional_cut,
               "HIST")'''
 
-    '''temp = ROOT.TCanvas()
+    temp = ROOT.TCanvas()
+    h_energy.GetXaxis().SetTitle("E_{1}+E_{2} (MeV)")
     h_energy.Draw()
     temp.SaveAs("~/Desktop/sensitivity/plots/" + name + ".png")
-    del temp'''
+    del temp
 
     return h_energy
 
@@ -247,24 +349,22 @@ def plot_efficiency(tree: ROOT.TTree, total_entries: float, additional_cut: str,
     for i_bin in range(nbins):
         low_energy_lim = h_eff.GetXaxis().GetBinLowEdge(i_bin)
 
-        cut = main_cut_str + prob_cut_str + \
-              " &&(sensitivity.total_calorimeter_energy) >= {} && (sensitivity.total_calorimeter_energy) < {}".format(
-                  low_energy_lim, max_energy)
+        cut = main_cut_str + prob_cut_str + " &&(sensitivity.total_calorimeter_energy) >= {} && (sensitivity.total_calorimeter_energy) < {}".format(low_energy_lim, max_energy)
         cut += additional_cut
 
         entries_passing_cut = tree.GetEntries(cut)
         h_eff.SetBinContent(i_bin, float(entries_passing_cut) / float(total_entries))
 
-    h_eff.SetMarkerSize(1)
-    h_eff.SetMarkerStyle(10)
+    '''h_eff.SetMarkerSize(1)
+    h_eff.SetMarkerStyle(10)'''
     h_eff.GetYaxis().SetTitle("Efficiency")
     title = 'Energy (MeV) $\leq$ $\Sigma_{12}$ $E_{calibrated}\leq$' + ' {:.1} MeV'.format(max_energy)
     h_eff.GetXaxis().SetTitle(title)
 
-    '''temp = ROOT.TCanvas()
+    temp = ROOT.TCanvas()
     h_eff.Draw()
     temp.SaveAs("~/Desktop/sensitivity/plots/"+name+".png")
-    del temp'''
+    del temp
 
     return h_eff
 
@@ -323,13 +423,13 @@ def isotope_plots(filename_0nbb: str, filename_2nbb: str, sample: SampleIsotope)
     print("0nubb sample:")
     print("---")
 
-    tot_entries_0nbb = calculate_efficiencies(tree_0nbb, sample, False, 0)
+    tot_entries_0nbb = calculate_efficiencies(tree_0nbb, sample, False, 0, "0nbb")
 
     print("---")
     print("2nubb sample:")
     print("---")
 
-    tot_entries_2nbb = calculate_efficiencies(tree_2nbb, sample, True, 0)
+    tot_entries_2nbb = calculate_efficiencies(tree_2nbb, sample, True, 0, "2nbb")
 
     ROOT.gStyle.SetOptStat(0)
 
@@ -340,12 +440,11 @@ def isotope_plots(filename_0nbb: str, filename_2nbb: str, sample: SampleIsotope)
                         "&& sensitivity.number_of_electrons>=1", "One or more negatively charged tracks required",
                         "one_electron_cut", sample)'''
 
-    extra_cut_plots(tree_0nbb, tot_entries_0nbb, tree_2nbb, tot_entries_2nbb, prob_cut_str,
-                    "No charge requirement, NEMO3 internal/external prob cuts", "no_electron_cut_int_ext_prob",
-                    sample)
+    extra_cut_plots(tree_0nbb, tot_entries_0nbb, tree_2nbb, tot_entries_2nbb, "",
+                    "", "", sample)
 
-    extra_cut_plots(tree_0nbb, tot_entries_0nbb, tree_2nbb, tot_entries_2nbb, "", "No probability cuts",
-                    "no_electron_cut", sample)
+    '''extra_cut_plots(tree_0nbb, tot_entries_0nbb, tree_2nbb, tot_entries_2nbb, "", "No probability cuts",
+                    "no_electron_cut", sample)'''
 
     '''extra_cut_plots(tree_0nbb, tot_entries_0nbb, tree_2nbb, tot_entries_2nbb,
                         "&& sensitivity.number_of_electrons==2 && sensitivity.external_probability<0.01 && sensitivity.internal_probability>0.04",
@@ -357,16 +456,17 @@ def extra_cut_plots(tree_0nbb: ROOT.TTree, tot_entries_0nbb: float, tree_2nbb: R
     print(">>> extra_cut_plots()")
     nbins = int((sample.get_max_energy() * 20 - sample.get_min_energy() * 20))
 
-    c = ROOT.TCanvas("supernemo", "supernemo", 900, 600)
+    c = ROOT.TCanvas()
+    c.cd()
 
     h_energy_0nbb = ROOT.TH1D("h_energy_0nbb", "h_energy_0nbb", nbins, sample.get_min_energy(), sample.get_max_energy())
     h_energy_0nbb.SetLineColor(1)
     h_energy_0nbb.GetXaxis().SetTitle("E_{1}+E_{2} (MeV)")
-    h_energy_0nbb.GetYaxis().SetTitle('Count (area normalized to $0\\nu\\beta\\beta$')
+    h_energy_0nbb.GetYaxis().SetTitle('Counts - normalised $0\\nu\\beta\\beta$')
     h_energy_0nbb.SetTitle("^{" + sample.get_molar_mass_text() + "}" + sample.get_isotope_name() + " " + cut_title)
 
     total_cut = main_cut_str + extra_cut
-    print("Cut is", total_cut)
+    print("Cut is: ", total_cut)
 
     tree_0nbb.Draw("(sensitivity.total_calorimeter_energy) >> h_energy_0nbb", total_cut, "HIST")
     '''tree_0nbb.Draw("(sensitivity.total_calorimeter_energy)>>energy0nuBB",
@@ -381,8 +481,16 @@ def extra_cut_plots(tree_0nbb: ROOT.TTree, tot_entries_0nbb: float, tree_2nbb: R
 
     h_energy_2nbb.Scale(h_energy_0nbb.Integral() / h_energy_2nbb.Integral())
 
-    c.SaveAs(
-        "~/Desktop/sensitivity/plots/" + sample.get_isotope_name() + sample.get_molar_mass_text() + "_energy_" + cut_filename_suffix + ".png")
+    energy_legend = ROOT.TLegend(0.2, 0.2, 0.35, 0.35)
+    ROOT.gStyle.SetLegendBorderSize(0)
+    energy_legend.AddEntry(h_energy_0nbb, '$0\\nu\\beta\\beta$')
+    energy_legend.AddEntry(h_energy_2nbb, "$2\\nu\\beta\\beta$")
+    c.SetLogy(True)
+    energy_legend.Draw()
+
+    c.SaveAs("~/Desktop/sensitivity/plots/" + sample.get_isotope_name() +
+             sample.get_molar_mass_text() + "_energy_" + cut_filename_suffix + ".png")
+    del c
 
     h_eff_0nbb = plot_efficiency(tree_0nbb, tot_entries_0nbb, extra_cut, sample.get_min_energy(),
                                  sample.get_max_energy(), "eff_0nbb")
@@ -390,23 +498,28 @@ def extra_cut_plots(tree_0nbb: ROOT.TTree, tot_entries_0nbb: float, tree_2nbb: R
                                  sample.get_max_energy(), "eff_2nbb")
 
     # Plot efficiency for 0nbb and 2nbb
-    h_eff_0nbb.SetMarkerColor(1)
-    h_eff_2nbb.SetMarkerColor(2)
+    h_eff_0nbb.SetLineColor(1)
+    h_eff_2nbb.SetLineColor(2)
 
     h_eff_0nbb.SetTitle("^{" + sample.get_molar_mass_text() + "}" + sample.get_isotope_name() + " " + cut_title)
-    h_eff_0nbb.GetYaxis().SetRangeUser(1e-8, 1)
-    h_eff_0nbb.Draw("HIST P")
+    #h_eff_0nbb.GetYaxis().SetRangeUser(1e-8, 1)
+
+    c = ROOT.TCanvas()
+    c.cd()
+
+    h_eff_0nbb.Draw("HIST")
     h_eff_2nbb.Scale(sample.get_frac_events_2bbsample())
-    h_eff_2nbb.Draw("HIST P SAME")
+    h_eff_2nbb.Draw("HIST SAME")
 
     eff_legend = ROOT.TLegend(0.2, 0.2, 0.35, 0.35)
     ROOT.gStyle.SetLegendBorderSize(0)
-    eff_legend.AddEntry(h_eff_0nbb, '$0\\nu\\beta\\beta$', "p")
-    eff_legend.AddEntry(h_eff_2nbb, "$2\\nu\\beta\\beta$", "p")
+    eff_legend.AddEntry(h_eff_0nbb, '$0\\nu\\beta\\beta$')
+    eff_legend.AddEntry(h_eff_2nbb, "$2\\nu\\beta\\beta$")
     c.SetLogy(True)
     eff_legend.Draw()
-    c.SaveAs(
-        "~/Desktop/sensitivity/plots/" + sample.get_isotope_name() + sample.get_molar_mass_text() + "_efficiency_" + cut_filename_suffix + ".png")
+    c.SaveAs("~/Desktop/sensitivity/plots/" + sample.get_isotope_name() +
+             sample.get_molar_mass_text() + "_efficiency_" + cut_filename_suffix + ".png")
+    del c
 
     # Calculate efficiencies for other background isotopes
     bkgd_isotope_effs = ROOT.TList()
@@ -637,17 +750,35 @@ def extra_cut_plots(tree_0nbb: ROOT.TTree, tot_entries_0nbb: float, tree_2nbb: R
         bkgd_isotope_energies.append(h_temp_energy)'''
 
     for i in range(len(bkgd_isotopes)):
-        bkgd_isotope_effs.Add(plot_bkgd_eff(bkgd_isotopes[i], extra_cut, sample.get_min_energy(), sample.get_max_energy()))
-        bkgd_isotope_energies.Add(plot_bkgd_energy(bkgd_isotopes[i], extra_cut, sample.get_min_energy(), sample.get_max_energy()))
+        print(">>> Isotope:", bkgd_isotopes[i].get_isotope_name())
+        file = ROOT.TFile(bkgd_isotopes[i].get_root_file_name())
+        tree = file.Get("Sensitivity;1")
+        n_entries = tree.GetEntries()
+
+        bkgd_h_eff = plot_efficiency(tree, n_entries, extra_cut, sample.get_min_energy(), sample.get_max_energy(),
+                                     "eff_" + bkgd_isotopes[i].get_isotope_name())
+        title = bkgd_isotopes[i].get_isotope_name() + "-" + bkgd_isotopes[i].get_molar_mass_text() + " (" + bkgd_isotopes[i].get_isotope_location() + ")"
+        bkgd_h_eff.SetTitle(title)
+
+        bkgd_h_energy = plot_bkgd_energy(tree, bkgd_isotopes[i], extra_cut, sample.get_min_energy(), sample.get_max_energy())
+
+        bkgd_isotope_effs.Add(bkgd_h_eff)
+        bkgd_isotope_energies.Add(bkgd_h_energy)
 
     # Use the efficiencies to calculate a sensitivity
+    c = ROOT.TCanvas()
+    c.cd()
     h_sensitivity = estimate_sensitivity(h_energy_0nbb, h_energy_2nbb, sample, h_eff_0nbb, h_eff_2nbb)
     c.SetLogy(False)
     h_sensitivity.GetYaxis().SetRangeUser(0, 1e25)
     h_sensitivity.SetTitle("^{" + sample.get_molar_mass_text() + "}" + sample.get_isotope_name() + " " + cut_title)
-    h_sensitivity.Draw("HIST P")
-    c.SaveAs(
-        "~/Desktop/sensitivity/plots/" + sample.get_isotope_name() + sample.get_molar_mass_text() + "_sensitivity_window_method_" + cut_filename_suffix + ".png")
+    h_sensitivity.Draw("HIST")
+    c.SaveAs("~/Desktop/sensitivity/plots/" + sample.get_isotope_name() +
+             sample.get_molar_mass_text() + "_sensitivity_window_method_" + cut_filename_suffix + ".png")
+    del c
+
+    c = ROOT.TCanvas()
+    c.cd()
 
     # Get an overall sensitivity from TLimit and compare
     h_temp_signal = h_energy_0nbb.Clone()
@@ -726,9 +857,9 @@ def extra_cut_plots(tree_0nbb: ROOT.TTree, tot_entries_0nbb: float, tree_2nbb: R
 
     # Print the results last because TLimit has masse of annoying output
     print("Sensitivity from TLimit (no other isotopes):", tlim_sensitivity, " years ")
-    print("Sensitivity from Window Method (no other isotopes):",
+    '''print("Sensitivity from Window Method (no other isotopes):",
           h_sensitivity.GetBinContent(h_sensitivity.GetMaximumBin()), "cutting at",
-          h_sensitivity.GetBinLowEdge(h_sensitivity.GetMaximumBin()), "MeV")
+          h_sensitivity.GetBinLowEdge(h_sensitivity.GetMaximumBin()), "MeV")'''
     print("Sensitivity from TLimit including background isotopes:", tot_tlim_sensitivity, "years")
 
     h_scaled_sig = h_energy_0nbb.Clone()
@@ -741,7 +872,7 @@ def extra_cut_plots(tree_0nbb: ROOT.TTree, tot_entries_0nbb: float, tree_2nbb: R
     legend.Draw()
     c.SetLogy(True)
     c.SaveAs("~/Desktop/sensitivity/plots/all_bkgds.png")
-    c.SetLogy(False)
+    del c
 
 
 def exp_limit_sig_events(conf_level: float, h_signal: ROOT.TH1D, h_bkgd: ROOT.TH1D, h_data: ROOT.TH1D):
@@ -844,7 +975,7 @@ def window_method_find_exp_sig_evts(B: float):
     S = 0
     n_events = int(B)
 
-    while likelihood > 0.01:
+    while likelihood > 0.999:
         S += 0.001
         CLsb = 0
         CLb = 0
